@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>БАС Глори Эйр — беспилотные летательные аппараты</title>
+  <meta name="description" content="Беспилотные летательные аппараты вертикального взлёта и посадки (VTOL), самолётного и мультироторного типов. Разработка, производство и подготовка пилотов БАС.">
+  <link rel="icon" href="assets/img/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap">
+  <link rel="preload" as="image" href="assets/img/hero-poster.webp" fetchpriority="high">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="header" data-header>
+  <div class="container header__inner">
+    <a class="header__logo" href="#top" aria-label="БАС Глори Эйр — на главную">
+      <img src="assets/img/logo.png" alt="БАС Глори Эйр" width="186" height="20">
+    </a>
+
+    <nav class="nav" id="nav" aria-label="Основное меню">
+      <a href="#about">О нас</a>
+      <a href="#models">Модели БПЛА</a>
+      <a href="#equipment">Оборудование</a>
+      <a href="#news">Медиа</a>
+      <a href="#contact">Контакты</a>
+    </nav>
+
+    <div class="header__actions">
+      <a class="btn btn--primary btn--sm" href="#contact">Заявка</a>
+      <div class="lang">
+        <span aria-current="true">RU</span> / <a href="#" lang="en" data-stub>EN</a>
+      </div>
+      <button class="burger" type="button" aria-controls="nav" aria-expanded="false" aria-label="Открыть меню"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- Первый экран: видео, а если оно не стартовало за 0,5 с — статичная картинка -->
+  <section class="hero">
+    <div class="hero__media" data-hero-media>
+      <img class="hero__poster" src="assets/img/hero-poster.webp" alt="" width="2000" height="1163" fetchpriority="high">
+      <video class="hero__video" src="assets/video/hero.mp4" autoplay muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
+      <script>
+        (function () {
+          // Скрипт стоит сразу после <video> и выполняется к первой отрисовке страницы.
+          // С этого момента (или с момента, когда фоновая вкладка стала видимой)
+          // у видео есть 0,5 с, чтобы начать играть. Иначе остаётся картинка.
+          var TIMEOUT = 500; // мс
+          var media = document.currentScript.parentNode;
+          var video = media.querySelector('video');
+          var settled = false;
+          var timer;
+
+          function useVideo() {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            media.classList.add('is-playing');
+          }
+
+          // reason сохраняется в data-fallback — видно в DevTools, почему показана картинка
+          function usePoster(reason) {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            media.classList.add('is-static');
+            media.setAttribute('data-fallback', reason);
+            // Прерываем загрузку, чтобы видео не докачивалось в фоне.
+            video.pause();
+            video.removeAttribute('src');
+            video.load();
+            video.remove();
+          }
+
+          var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          var saveData = navigator.connection && navigator.connection.saveData;
+          if (reducedMotion) return usePoster('reduced-motion');
+          if (saveData) return usePoster('save-data');
+
+          video.addEventListener('playing', useVideo);
+          video.addEventListener('error', function () { usePoster('error'); });
+          if (!video.paused && video.readyState > 2) return useVideo(); // автозапуск успел раньше скрипта
+
+          function start() {
+            timer = setTimeout(function () { usePoster('timeout'); }, TIMEOUT);
+            var play = video.play();
+            if (play && play.catch) {
+              play.catch(function (err) {
+                // AbortError — просто перезапуск загрузки, видео продолжит играть.
+                // NotAllowedError / NotSupportedError — автозапуск запрещён или формат не поддерживается.
+                if (err && err.name !== 'AbortError') usePoster(err.name || 'play-rejected');
+              });
+            }
+          }
+
+          // В фоновой вкладке браузер видео не запускает — ждём, пока вкладку откроют.
+          if (!document.hidden) return start();
+          document.addEventListener('visibilitychange', function onVisible() {
+            if (document.hidden) return;
+            document.removeEventListener('visibilitychange', onVisible);
+            start();
+          });
+        })();
+      </script>
+    </div>
+
+    <div class="container hero__content">
+      <h1 class="hero__title">Беспилотные летательные аппараты</h1>
+      <p class="hero__lead">Вертикального взлёта и&nbsp;посадки (VTOL), самолётного и&nbsp;мультироторного типов</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#contact">Оставить заявку</a>
+        <a class="btn btn--ghost-light" href="#models">Все модели</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Типы БПЛА -->
+  <section class="types" id="about" aria-label="Типы беспилотников">
+    <div class="container types__grid">
+      <div class="type">
+        <h2 class="type__title">Самолётного типа</h2>
+        <a class="link-more" href="#models">Смотреть модели <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+      <div class="type">
+        <h2 class="type__title">Вертикального взлёта <br>и&nbsp;посадки (СВВП)</h2>
+        <a class="link-more" href="#models">Смотреть модели <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Модели: вкладка → карточка. Картинка берётся по тексту кнопки: assets/img/drones/<текст кнопки>.webp -->
+  <section class="models" id="models">
+    <div class="models__head">
+      <div class="container">
+        <h2 class="h-section">Беспилотные авиационные системы</h2>
+      </div>
+    </div>
+
+    <div class="models__tabs">
+      <div class="container">
+        <div class="tabs" role="tablist" aria-label="Модели БПЛА" data-drone-tabs>
+          <button class="tab is-active" type="button" role="tab" id="tab-og-25" aria-selected="true" aria-controls="drone-card">OG-25</button>
+          <button class="tab" type="button" role="tab" id="tab-og-202" aria-selected="false" aria-controls="drone-card" tabindex="-1">OG-202</button>
+          <button class="tab" type="button" role="tab" id="tab-og-65" aria-selected="false" aria-controls="drone-card" tabindex="-1">OG-65</button>
+          <button class="tab" type="button" role="tab" id="tab-og-003" aria-selected="false" aria-controls="drone-card" tabindex="-1">OG-003</button>
+          <button class="tab" type="button" role="tab" id="tab-og-40e" aria-selected="false" aria-controls="drone-card" tabindex="-1">OG-40E</button>
+          <button class="tab" type="button" role="tab" id="tab-og-40d" aria-selected="false" aria-controls="drone-card" tabindex="-1">OG-40D</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="drone" id="drone-card" role="tabpanel" aria-labelledby="tab-og-25" data-drone-card>
+      <div class="container">
+        <div class="drone__info">
+          <h3 class="drone__name drone__fade" data-drone-name>OG-25</h3>
+          <p class="drone__desc drone__fade" data-drone-desc>VTOL лёгкого класса. Взлетает с&nbsp;площадки 6×6&nbsp;м без полосы. Для логистики, мониторинга и&nbsp;патрулирования.</p>
+          <dl class="drone__specs drone__fade" data-drone-specs>
+            <div class="spec"><dt>взлетный вес</dt><dd>до 30 кг</dd></div>
+            <div class="spec"><dt>полетное время</dt><dd>до 3 ч</dd></div>
+            <div class="spec"><dt>крейсерская скорость</dt><dd>100 км/ч</dd></div>
+            <div class="spec"><dt>грузоподъемность</dt><dd>до 10 кг</dd></div>
+          </dl>
+          <div class="drone__actions">
+            <a class="btn btn--outline" href="#" data-stub>Подробнее</a>
+            <a class="btn btn--primary" href="#contact" data-buy data-model="OG-25">Купить</a>
+          </div>
+        </div>
+      </div>
+      <div class="drone__media">
+        <img class="drone__fade" src="assets/img/drones/OG-25.webp" alt="Беспилотник OG-25" width="1920" height="1080" data-drone-img>
+        <div class="drone__placeholder drone__fade" data-drone-placeholder hidden>
+          <strong data-drone-placeholder-name></strong>
+          <span>Фото модели скоро появится</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Применение -->
+  <section class="uses" id="uses" aria-labelledby="uses-title">
+    <h2 class="visually-hidden" id="uses-title">Применение БПЛА</h2>
+    <ul class="container uses__grid">
+      <li><a class="use" href="#" data-stub>
+        <img src="assets/img/use/fire.webp" alt="" width="530" height="512" loading="lazy">
+        <span class="use__body"><span class="use__title">Обнаружение лесных пожаров</span><span class="use__more">Подробнее <span class="arrow" aria-hidden="true">→</span></span></span>
+      </a></li>
+      <li><a class="use" href="#" data-stub>
+        <img src="assets/img/use/medicine.webp" alt="" width="720" height="660" loading="lazy">
+        <span class="use__body"><span class="use__title">Логистика медикаментов и&nbsp;срочных грузов</span><span class="use__more">Подробнее <span class="arrow" aria-hidden="true">→</span></span></span>
+      </a></li>
+      <li><a class="use" href="#" data-stub>
+        <img src="assets/img/use/pipeline.webp" alt="" width="530" height="512" loading="lazy">
+        <span class="use__body"><span class="use__title">Мониторинг линейных и&nbsp;промышленных объектов</span><span class="use__more">Подробнее <span class="arrow" aria-hidden="true">→</span></span></span>
+      </a></li>
+      <li><a class="use" href="#" data-stub>
+        <img src="assets/img/use/hail.webp" alt="" width="530" height="512" loading="lazy">
+        <span class="use__body"><span class="use__title">Разгон облаков и&nbsp;защита урожая от&nbsp;града</span><span class="use__more">Подробнее <span class="arrow" aria-hidden="true">→</span></span></span>
+      </a></li>
+      <li><a class="use" href="#" data-stub>
+        <img src="assets/img/use/oil.webp" alt="" width="530" height="512" loading="lazy">
+        <span class="use__body"><span class="use__title">Доставка нефтяных проб и&nbsp;запасных частей</span><span class="use__more">Подробнее <span class="arrow" aria-hidden="true">→</span></span></span>
+      </a></li>
+      <li><a class="use" href="#" data-stub>
+        <img src="assets/img/use/radiation.webp" alt="" width="720" height="403" loading="lazy">
+        <span class="use__body"><span class="use__title">Радиационный контроль объектов</span><span class="use__more">Подробнее <span class="arrow" aria-hidden="true">→</span></span></span>
+      </a></li>
+      <li><a class="use" href="#" data-stub>
+        <img src="assets/img/use/search.webp" alt="" width="530" height="512" loading="lazy">
+        <span class="use__body"><span class="use__title">Поисковые работы</span><span class="use__more">Подробнее <span class="arrow" aria-hidden="true">→</span></span></span>
+      </a></li>
+      <li><a class="use" href="#" data-stub>
+        <img src="assets/img/use/geodesy.webp" alt="" width="530" height="512" loading="lazy">
+        <span class="use__body"><span class="use__title">Геодезические работы</span><span class="use__more">Подробнее <span class="arrow" aria-hidden="true">→</span></span></span>
+      </a></li>
+    </ul>
+  </section>
+
+  <!-- Программа подготовки пилотов -->
+  <section class="program" id="program">
+    <img class="program__bg" src="assets/img/program.webp" alt="" width="1344" height="752" loading="lazy">
+    <div class="container program__content">
+      <h2 class="program__title">Программа подготовки <br>пилотов БАС</h2>
+      <p class="program__text">ООО «БАС Глори Эйр» и&nbsp;ООО «Центр инновационных технологий» реализуют первую в&nbsp;России программу профессиональной подготовки в&nbsp;сфере беспилотной авиации.</p>
+      <div class="program__actions">
+        <a class="btn btn--navy" href="#" data-stub>О программе</a>
+        <a class="btn btn--ghost-light" href="#contact" data-signup>Записаться</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Новости -->
+  <section class="news" id="news">
+    <div class="container">
+      <div class="news__head">
+        <h2 class="h-block">Новости</h2>
+        <a class="news__all" href="#" data-stub>Все <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+      <div class="news__grid">
+        <article class="news-card">
+          <a href="#" data-stub>
+            <div class="news-card__img"><img src="assets/img/news/expo-shenzhen.webp" alt="Стенд БАС Глори Эйр на выставке" width="820" height="520" loading="lazy"></div>
+            <time datetime="2026-06-04">04.06.2026</time>
+            <h3>«БАС Глори Эйр» представила российские БАС на&nbsp;крупнейшей в&nbsp;мире выставке дронов в&nbsp;Шэньчжэне</h3>
+          </a>
+        </article>
+        <article class="news-card">
+          <a href="#" data-stub>
+            <div class="news-card__img"><img src="assets/img/news/og25-registry.webp" alt="Беспилотник на посадочной площадке" width="820" height="520" loading="lazy"></div>
+            <time datetime="2025-03-25">25.03.2025</time>
+            <h3>Минпромторг включил OG-25 в&nbsp;Реестр российской промышленной продукции</h3>
+          </a>
+        </article>
+        <article class="news-card">
+          <a href="#" data-stub>
+            <div class="news-card__img"><img src="assets/img/news/oil-samples.webp" alt="Зимний пейзаж с высоты" width="820" height="519" loading="lazy"></div>
+            <time datetime="2023-12-26">26.12.2023</time>
+            <h3>СП ОАК и&nbsp;Glory Air испытало доставку проб нефти беспилотниками</h3>
+          </a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Заявка -->
+  <section class="contact" id="contact">
+    <div class="container contact__inner">
+      <div class="contact__intro">
+        <h2 class="h-block">Свяжитесь <br>с&nbsp;нами</h2>
+        <p class="contact__text">Специалисты свяжутся с&nbsp;вами для подтверждения заявки.</p>
+        <div class="contact__direct">
+          <a class="contact__phone" href="tel:+74953572919">+7 (495) 357-29-19</a>
+          <a class="contact__email" href="mailto:info@basga.ru">info@basga.ru</a>
+        </div>
+      </div>
+
+      <form class="form" data-lead-form novalidate>
+        <fieldset class="form__type">
+          <legend class="visually-hidden">Кто оставляет заявку</legend>
+          <label class="pill"><input type="radio" name="client_type" value="legal" checked><span>Юридическое лицо</span></label>
+          <label class="pill"><input type="radio" name="client_type" value="person"><span>Физическое лицо</span></label>
+        </fieldset>
+
+        <div class="form__grid">
+          <label class="field" data-org-field>
+            <span class="field__label">Организация</span>
+            <input type="text" name="organization" autocomplete="organization">
+          </label>
+          <label class="field field--name">
+            <span class="field__label">Имя</span>
+            <input type="text" name="name" autocomplete="name">
+          </label>
+          <label class="field">
+            <span class="field__label">Телефон</span>
+            <input type="tel" name="phone" autocomplete="tel" inputmode="tel">
+          </label>
+          <label class="field">
+            <span class="field__label">E-mail</span>
+            <input type="email" name="email" autocomplete="email">
+          </label>
+          <label class="field field--wide">
+            <span class="field__label">Сообщение</span>
+            <textarea name="message" rows="4"></textarea>
+          </label>
+        </div>
+
+        <div class="form__footer">
+          <label class="check">
+            <input type="checkbox" name="consent">
+            <span>Согласен на обработку персональных данных в&nbsp;соответствии с&nbsp;<a href="#" data-stub>политикой конфиденциальности</a></span>
+          </label>
+          <button class="btn btn--primary btn--submit" type="button">Отправить заявку</button>
+        </div>
+        <p class="form__status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__col">
+        <h2 class="footer__title">Модели БПЛА</h2>
+        <ul class="footer__list">
+          <li><a href="#models" data-model-link>OG-25</a></li>
+          <li><a href="#models" data-model-link>OG-65</a></li>
+          <li><a href="#models" data-model-link>OG-202</a></li>
+          <li><a href="#models" data-model-link>OG-800</a></li>
+          <li><a href="#models" data-model-link>OG-50</a></li>
+          <li><a href="#models" data-model-link>OG-003</a></li>
+          <li><a href="#models" data-model-link>OG-40</a></li>
+          <li><a href="#models" data-model-link>OG-40E</a></li>
+        </ul>
+      </div>
+      <div class="footer__col" id="equipment">
+        <h2 class="footer__title">Дополнительное оборудование</h2>
+        <ul class="footer__list">
+          <li><a href="#" data-stub>Программное обеспечение</a></li>
+          <li><a href="#" data-stub>Камеры и тепловизоры</a></li>
+          <li><a href="#" data-stub>Системы связи</a></li>
+          <li><a href="#" data-stub>НСУ и антенно-фидерная система</a></li>
+          <li><a href="#" data-stub>Полётные контроллеры</a></li>
+          <li><a href="#" data-stub>Детекторы и сканеры</a></li>
+          <li><a href="#" data-stub>Радиометрия</a></li>
+          <li><a href="#" data-stub>Аэрозольный генератор</a></li>
+          <li><a href="#" data-stub>Мобильный пункт управления БАС</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h2 class="footer__title">Применение БПЛА</h2>
+        <ul class="footer__list">
+          <li><a href="#uses">Природоохрана</a></li>
+          <li><a href="#uses">Медицина, ГО и ЧС</a></li>
+          <li><a href="#uses">Логистика</a></li>
+          <li><a href="#uses">Промышленность</a></li>
+          <li><a href="#uses">Нефть и газ</a></li>
+          <li><a href="#uses">Геодезия</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h2 class="footer__title">Контакты</h2>
+        <a class="footer__phone" href="tel:+74953572919">+7 (495) 357-29-19</a>
+        <a class="footer__email" href="mailto:info@basga.ru">info@basga.ru</a>
+        <div class="footer__social">
+          <a href="#" data-stub>Telegram</a>
+          <a href="#" data-stub>Rutube</a>
+        </div>
+        <ul class="footer__list footer__list--links">
+          <li><a href="#about">О компании</a></li>
+          <li><a href="#news">Новости</a></li>
+          <li><a href="#" data-stub>Вакансии</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <p>© 2026 ООО «БАС Глори Эйр»</p>
+      <div class="footer__legal">
+        <a href="#" data-stub>Политика конфиденциальности</a>
+        <a href="#" data-stub>Согласие на обработку данных</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js" defer></script>
+</body>
+</html>
