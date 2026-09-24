@@ -800,7 +800,7 @@ a:hover .arrow { transform: translateX(3px); }
 
   .use { aspect-ratio: 1 / 1; }
   .use__body { padding: 0 16px 18px; }
-  .use__title { font-size: 16px; line-height: 20px; }
+  .use__title { font-size: 15px; line-height: 20px; }
   .use__more { margin-top: 8px; font-size: 11px; }
 
   .program { min-height: 520px; }
