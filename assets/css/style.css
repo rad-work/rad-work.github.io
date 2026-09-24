@@ -463,7 +463,7 @@ a:hover .arrow { transform: translateX(3px); }
 .use:hover img { transform: scale(1.05); }
 
 .use__body { margin-top: auto; padding: 0 40px 42px; }
-.use__title { display: block; font-size: 20px; font-weight: 500; line-height: 26.5px; }
+.use__title { display: block; font-size: 15px; font-weight: 500; line-height: 26.5px; }
 .use__more { display: inline-flex; gap: 5px; margin-top: 3px; font-size: 12px; font-weight: 600; color: var(--accent); }
 
 /* ---------- Программа подготовки ---------- */
