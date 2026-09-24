@@ -463,7 +463,7 @@ a:hover .arrow { transform: translateX(3px); }
 .use:hover img { transform: scale(1.05); }
 
 .use__body { margin-top: auto; padding: 0 40px 42px; }
-.use__title { display: block; font-size: 22px; font-weight: 500; line-height: 26.5px; }
+.use__title { display: block; font-size: 20px; font-weight: 500; line-height: 26.5px; }
 .use__more { display: inline-flex; gap: 5px; margin-top: 3px; font-size: 12px; font-weight: 600; color: var(--accent); }
 
 /* ---------- Программа подготовки ---------- */
@@ -733,7 +733,7 @@ a:hover .arrow { transform: translateX(3px); }
   .nav { gap: 22px; }
   .type__title { font-size: 32px; line-height: 36px; }
   .use__body { padding: 0 28px 28px; }
-  .use__title { font-size: 19px; line-height: 23px; }
+  .use__title { font-size: 15px; line-height: 23px; }
 }
 
 @media (max-width: 1024px) {
