@@ -1,0 +1,51 @@
+rules_version = '2';
+// Правила доступа к Firestore для сайта VR РИТМ.
+// Вставьте в Firebase Console → Firestore Database → Rules → Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function str(v, max) { return v is string && v.size() <= max; }
+
+    // Список админов ведётся вручную в консоли: документ admins/<UID>.
+    match /admins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Контент сайта: читают все, меняют только админы.
+    match /posts/{id}    { allow read: if true; allow write: if isAdmin(); }
+    match /photos/{id}   { allow read: if true; allow write: if isAdmin(); }
+    match /events/{id}   { allow read: if true; allow write: if isAdmin(); }
+    match /content/{id}  { allow read: if true; allow write: if isAdmin(); }
+    match /settings/{id} { allow read: if true; allow write: if isAdmin(); }
+    // Опубликованные благодарности: попадают сюда только после модерации.
+    match /thanks/{id}   { allow read: if true; allow write: if isAdmin(); }
+
+    // Комментарии «Предложить идею»: оставить может любой вошедший (в т.ч. анонимно).
+    match /ideas/{id} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['text', 'name', 'ts'])
+        && str(request.resource.data.text, 600)
+        && str(request.resource.data.name, 40);
+    }
+
+    // Входящие: обращения в Службу заботы и благодарности на модерации.
+    // Пишет сам сотрудник в свою папку care/<UID>, читают и обрабатывают только админы.
+    match /care/{uid} {
+      allow read: if isAdmin();
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['ts']);
+
+      match /items/{item} {
+        allow read, update: if isAdmin();
+        allow create: if signedIn() && request.auth.uid == uid
+          && request.resource.data.status == 'new'
+          && request.resource.data.kind in ['care', 'thanks']
+          && str(request.resource.data.text, 1500);
+      }
+    }
+  }
+}
