@@ -1,7 +1,3 @@
-<!doctype html>
-<html lang="ru">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VR РИТМ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;0,7..72,600&display=swap">
@@ -494,9 +490,10 @@ async function fileBlob(a){let b64='';
   if(a.emb)b64=FB[a.emb]||'';
   else{if(!DB)throw new Error('db');const n=a.n||1,parts=[];for(let i=0;i<n;i++){const d=await DB.collection('files').doc(a.id+'_'+i).get();const v=d&&(d.data?d.data():d);if(!v||!v.d)throw new Error('chunk');parts.push(v.d)}b64=parts.join('')}
   const bin=atob(b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u])}
-async function dlFile(id){const a=FREG[id];if(!a)return;
+async function dlFile(id){const a=FREG[id];if(!a)return;let D=null;try{D=window.claude?await claude.use('downloads'):null}catch(e){}
+  if(!D){tst('Скачивание недоступно в этом режиме просмотра');return}
   tst('Готовим файл…');
-  try{const u=URL.createObjectURL(await fileBlob(a)),l=document.createElement('a');l.href=u;l.download=a.name;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}catch(e){tst('Не удалось получить файл. Попробуйте ещё раз.')}}
+  try{const bl=await fileBlob(a);await D.save({filename:a.name,data:bl})}catch(e){if(e&&e.code==='declined')return;tst(e&&e.code==='rejected_extension'?'Этот формат нельзя скачать с сайта. Попросите администратора упаковать файл в zip.':'Не удалось получить файл. Попробуйте ещё раз.')}}
 const filesHTML=L=>{L=(L||[]).filter(a=>a&&a.name);if(!L.length)return'';L.forEach(a=>FREG[a.id]=a);
   return `<div class="files"><h3>Файлы</h3>${L.map(a=>`<div class="frow"><div><b>${esc(a.name)}</b><small>${esc(fext(a.name).toUpperCase())} · ${fsize(a.size||0)}</small></div><button type="button" data-dl="${esc(a.id)}">Скачать</button></div>`).join('')}</div>`};
 async function fileStore(file){const ext=fext(file.name);
@@ -687,7 +684,9 @@ rebuildEV();
 /* ===== посты, фото и админ-панель ===== */
 const SECS=[['hero','Главная тема'],['charity','Благотворительность'],['team','Team VR'],['library','Корпоративная библиотека VR'],['ambassadors','Амбассадоры VR'],['sportnews','Спорт VR']];
 const SECN=Object.fromEntries(SECS.concat([['surveys','Опросы']]));
-let ADMIN=null,LOGGED=false,AUTH=null;
+let ADMIN=null,PLAT=false,LOGGED=false;try{LOGGED=sessionStorage.getItem('vr_adm')==='1'}catch(e){}
+const ADM_HASH='302773eafe32efc0bd28f1a582ac6c06663df1aac2f870487ab914dede296b67';
+async function sha(t){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 const getQuote=()=>state.quote&&state.quote.p&&state.quote.p.length?state.quote:SITE.quote;
 const adm={tab:'posts',sec:'all',edit:null,msg:'',ithanks:'new',icare:'new'};
 const ov=o=>{const r={};['t','d','body','img','imgs','hidden','url','tag','fx','fy','sections','also','files'].forEach(k=>{if(o[k]!==undefined)r[k]=o[k]});return r};
@@ -750,7 +749,7 @@ const kindOf=x=>x.kind||'care',stOf=x=>x.status||'new';
 const nThanks=()=>inbox().filter(x=>kindOf(x)==='thanks'&&stOf(x)==='new').length;
 const nCare=()=>inbox().filter(x=>kindOf(x)==='care'&&stOf(x)==='new').length;
 function updBadges(){}
-async function loadInbox(){if(!DB||!ADMIN)return;
+async function loadInbox(){if(!DB||!PLAT)return;
   try{const us=await DB.collection('care').get(),all=[];for(const u of us.docs){const it=await DB.collection('care').doc(u.id).collection('items').get();it.docs.forEach(d=>all.push({...d.data(),id:d.id,uid:u.id}))}
     all.sort((a,b)=>(b.ts||0)-(a.ts||0));state.inbox=all;updBadges();if($('#adm')&&!adm.edit&&!typing())paintAdmin()}catch(e){}}
 const dfmt=t=>t?new Date(t).toLocaleDateString('ru-RU',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}):'';
@@ -812,7 +811,7 @@ function editBar(){let b=$('#editbar');document.body.classList.toggle('editing',
   if(EDITMODE&&LOGGED){if(!b){b=document.createElement('div');b.id='editbar';b.innerHTML='<span>Режим правки: нажмите на любой текст, чтобы изменить его.</span><button type="button" id="eb-x">Готово</button>';document.body.appendChild(b)}}else if(b)b.remove()}
 function setEdit(v){EDITMODE=v;try{sessionStorage.setItem('vr_edit',v?'1':'0')}catch(e){}editBar();applyTx()}
 async function txSave(o,nv){const pairs=(state.tx||[]).filter(p=>p[0]!==o);if(nv&&nv!==o)pairs.push([o,nv]);state.tx=pairs;buildTx();applyTx();
-  if(!DB){tst('Сохранение недоступно');return}try{await DB.collection('content').doc('texts').set({pairs:pairs.map(([o,n])=>({o,n}))});tst('Текст сохранён')}catch(e){tst('Не удалось сохранить. Проверьте доступ.')}}
+  if(!DB){tst('Сохранение недоступно');return}try{await DB.collection('content').doc('texts').set({pairs});tst('Текст сохранён')}catch(e){tst('Не удалось сохранить. Проверьте доступ.')}}
 function openTx(el){const o=el.dataset.o||nz(el.textContent),m=document.createElement('div');m.className='crop txm';
   m.innerHTML=`<div class="crop-in" role="dialog" aria-label="Изменить текст"><h3>Изменить текст</h3><p class="pnote">Замена применится везде на сайте, где стоит точно такой же текст.</p><textarea id="tx-v" rows="4" maxlength="1200"></textarea><div class="adm-acts" style="justify-content:flex-end"><button type="button" id="tx-c">Отмена</button>${TXM.has(o)?'<button type="button" id="tx-r">Вернуть исходный</button>':''}<button type="button" class="btn" id="tx-s">Сохранить</button></div></div>`;
   document.body.appendChild(m);const ta=m.querySelector('#tx-v');ta.value=nz(el.textContent);ta.focus();
@@ -878,10 +877,10 @@ function pollsTab(){const L=listAll('surveys'),e=adm.edit&&adm.edit.poll?adm.edi
   <div>${L.map(i=>`<div class="adm-row" style="grid-template-columns:minmax(0,1fr) auto"><div><h3>${esc(i.t)}</h3><small>${esc(i.d||'')} · ${esc(i.tag||'Открыт')}${i.url?' · есть ссылка':' · без ссылки'}${i.hidden?' · скрыт':''}</small></div><div class="adm-acts"><button data-ad="editpoll|${i.key}">Изменить</button><button data-ad="hide|${i.key}|surveys">${i.hidden?'Показать':'Скрыть'}</button>${i.custom?`<button data-ad="del|${i.key}">Удалить</button>`:''}</div></div>`).join('')}</div>`}
 function adminPage(){return `<h1 class="ptitle" style="font-size:clamp(2rem,4vw,3.2rem);margin-bottom:1.5rem">Админ-панель</h1><div id="adm"></div>`}
 function paintAdmin(){const el=$('#adm');if(!el)return;
+  if(!LOGGED){if(el.querySelector('.login'))return;el.innerHTML=`<form class="login f" data-aform="login"><p>Вход для администраторов сайта.</p><label class="l" for="lg-u">Логин</label><input id="lg-u" type="text" autocomplete="username" required><label class="l" for="lg-p">Пароль</label><input id="lg-p" type="password" autocomplete="current-password" required><div class="st" id="lg-e" role="alert"></div><button class="btn" type="submit">Войти</button></form>`;return}
   if(ADMIN===null){el.innerHTML='<p class="empty">Проверяем доступ…</p>';return}
-  if(!LOGGED){if(el.querySelector('.login'))return;el.innerHTML=`<form class="login f" data-aform="login"><p>Вход для администраторов сайта.</p><label class="l" for="lg-u">Почта</label><input id="lg-u" type="email" autocomplete="username" required><label class="l" for="lg-p">Пароль</label><input id="lg-p" type="password" autocomplete="current-password" required><div class="st" id="lg-e" role="alert"></div><button class="btn" type="submit">Войти</button></form>`;return}
   const y=window.scrollY;
-  el.innerHTML=`<div class="adm-top"><span class="pnote">Вы вошли как администратор</span><button type="button" data-ad="logout">Выйти</button></div>`+(ADMIN?'':`<div class="warn">Вход выполнен, но этой учётной записи нет в списке администраторов: изменения не сохранятся. Добавьте в Firestore документ admins/${esc(UID||'')}.</div>`)+tabsHTML()+({posts:postsTab,photos:photosTab,thanks:thanksTab,care:careTab,polls:pollsTab,quote:quoteTab,links:linksTab,cal:calTab,texts:textsTab}[adm.tab])();
+  el.innerHTML=`<div class="adm-top"><span class="pnote">Вы вошли как администратор</span><button type="button" data-ad="logout">Выйти</button></div>`+((PLAT||adm.tab!=='care')?'':'<div class="warn">Личные обращения в «Заботе» видны только владельцу сайта, при входе по паролю список недоступен.</div>')+tabsHTML()+({posts:postsTab,photos:photosTab,thanks:thanksTab,care:careTab,polls:pollsTab,quote:quoteTab,links:linksTab,cal:calTab,texts:textsTab}[adm.tab])();
   if(adm.keepScroll)window.scrollTo(0,y)}
 async function adminAct(v){const [a,k,x,z]=v.split('|');
   if(!DB)return;
@@ -897,7 +896,7 @@ async function adminAct(v){const [a,k,x,z]=v.split('|');
   if(a==='evhide'){const e=evAll().find(q=>q.id===k);await evSave(e.custom?k:'ev__'+k,{hidden:!e.hidden});flash(e.hidden?'Событие показано':'Событие скрыто');return}
   if(a==='evdel'){await DB.collection('events').doc(k).delete();flash('Событие удалено');return}
   if(a==='evreset'){await DB.collection('events').doc('ev__'+k).delete();flash('Возвращено исходное событие');return}
-  if(a==='logout'){setEdit(false);LOGGED=false;ADMIN=false;adm.edit=null;location.hash='#home';await AUTH.signOut();return}
+  if(a==='logout'){setEdit(false);LOGGED=false;try{sessionStorage.removeItem('vr_adm')}catch(e){}adm.edit=null;location.hash='#home';return}
   if(a==='cancel'){adm.edit=null;paintAdmin();return}
   if(a==='fdel'){const x=adm.edit.files.splice(+k,1)[0];if(x)(adm.edit.rm=adm.edit.rm||[]).push(x);flPaint();return}
   if(a==='pdel'){adm.edit.ph.splice(+k,1);phPaint();fxPaint();pvPaint();return}
@@ -941,8 +940,8 @@ document.addEventListener('change',async e=>{
 });
 document.addEventListener('submit',async e=>{
   const f=e.target.closest('[data-aform]');if(!f)return;e.preventDefault();
-  if(f.dataset.aform==='login'){const u=$('#lg-u').value.trim(),p=$('#lg-p').value,er=$('#lg-e');if(!AUTH){er.textContent='Вход недоступен: база не подключена.';return}
-    try{await AUTH.signInWithEmailAndPassword(u,p)}catch(x){er.textContent=x&&x.code==='auth/too-many-requests'?'Слишком много попыток. Попробуйте позже.':'Неверная почта или пароль.';$('#lg-p').value=''}return}
+  if(f.dataset.aform==='login'){const u=$('#lg-u').value.trim(),p=$('#lg-p').value,er=$('#lg-e');let h='';try{h=await sha(u+':'+p)}catch(x){}
+    if(h===ADM_HASH){LOGGED=true;try{sessionStorage.setItem('vr_adm','1')}catch(x){}paintAdmin();editBar()}else{er.textContent='Неверный логин или пароль.';$('#lg-p').value=''}return}
   if(f.dataset.aform==='tx'){const o=nz($('#tx-o').value),n=nz($('#tx-n').value);if(o&&n){await txSave(o,n);$('#tx-o').value='';$('#tx-n').value='';paintAdmin()}return}
   if(!DB)return;
   try{
@@ -1090,28 +1089,19 @@ function paintLists(){
   if(tl){const a=(DB?state.thanks:SAMPLE_THANKS)||[];tl.innerHTML=a.length?a.slice(0,6).map((n,i)=>`<article class="note n${i%3}"><span class="pin"></span><p>${esc(n.text)}</p>${n.name?`<small>от ${esc(n.name)}</small>`:''}</article>`).join(''):`<p class="empty">Пока записок нет — будьте первыми.</p>`}
   if(il){const a=state.ideas||[];il.innerHTML=a.length?a.map(n=>`<li><p>${esc(n.text)}</p><small>${esc(n.name||'Сотрудник')}${n.ts?' · '+fmtD(n.ts):''}</small></li>`).join(''):`<li class="empty">Комментариев пока нет — оставьте первый.</li>`}
 }
-/* ===== Firebase: конфиг веб-приложения из Firebase Console → Project settings → Your apps ===== */
-const FB_CONFIG={apiKey:'AIzaSyDCeUKMnA7S64oh_bELOtY-qa6yBpGLljY',authDomain:'vrpuls-69f26.firebaseapp.com',projectId:'vrpuls-69f26',storageBucket:'vrpuls-69f26.firebasestorage.app',messagingSenderId:'1015452686802',appId:'1:1015452686802:web:d3b3cc1895b8948202d00b'};
-const FB_SDK='https://www.gstatic.com/firebasejs/12.19.0/firebase-';
-const loadJs=src=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
-function onAuth(){if(ADMIN)loadInbox();else state.inbox=null;editBar();applyTx();if($('#adm'))paintAdmin()}
 async function initDb(){
-  try{if(!FB_CONFIG.apiKey)throw 0;await loadJs(FB_SDK+'app-compat.js');await Promise.all(['auth','firestore'].map(m=>loadJs(FB_SDK+m+'-compat.js')));
-    firebase.initializeApp(FB_CONFIG);DB=firebase.firestore();DB.settings({ignoreUndefinedProperties:true});AUTH=firebase.auth()}catch(e){DB=null;AUTH=null}
-  if(!DB){ADMIN=false;paintLists();if($('#adm'))paintAdmin();return}
-  /* сотрудники входят анонимно (нужен UID для обращений), админы — по почте и паролю */
-  AUTH.onAuthStateChanged(async u=>{
-    if(!u){UID=null;LOGGED=false;ADMIN=false;onAuth();AUTH.signInAnonymously().catch(()=>{});return}
-    UID=u.uid;LOGGED=!u.isAnonymous;ADMIN=LOGGED?null:false;onAuth();
-    if(LOGGED){try{ADMIN=(await DB.collection('admins').doc(u.uid).get()).exists}catch(e){ADMIN=false}onAuth()}});
+  try{DB=window.claude?await claude.use('db'):null}catch(e){DB=null}
+  let U=null;try{U=window.claude?await claude.use('user'):null;UID=U?await U.id():null}catch(e){UID=null}
+  try{PLAT=U?!!(await U.canEdit()):false}catch(e){PLAT=false}ADMIN=true;
+  if(!DB){paintLists();if($('#adm'))paintAdmin();return}
   try{DB.collection('events').onSnapshot(sn=>{const P={};sn.docs.forEach(d=>P[d.id]=d.data());state.evs=P;rebuildEV();evRefresh()},()=>{})}catch(e){}
-  try{DB.collection('content').onSnapshot(sn=>{const d=sn.docs.find(x=>x.id==='texts');state.tx=d?(d.data().pairs||[]).map(p=>[p.o,p.n]):[];buildTx();applyTx();if($('#adm')&&adm.tab==='texts'&&!adm.edit)paintAdmin()},()=>{})}catch(e){}
+  try{DB.collection('content').onSnapshot(sn=>{const d=sn.docs.find(x=>x.id==='texts');state.tx=d?(d.data().pairs||[]):[];buildTx();applyTx();if($('#adm')&&adm.tab==='texts'&&!adm.edit)paintAdmin()},()=>{})}catch(e){}
   try{DB.collection('photos').onSnapshot(sn=>{const P={};sn.docs.forEach(d=>P[d.id]=d.data());state.photos=P;paintPosts();if(/^#a-/.test(location.hash)&&!adm.edit)route(false)},()=>{})}catch(e){}
   try{DB.collection('settings').onSnapshot(sn=>{const d=sn.docs.find(x=>x.id==='quote');state.quote=d?d.data():null;const l=sn.docs.find(x=>x.id==='links');state.links=l?l.data():null;renderWall();paintPosts()},()=>{})}catch(e){}
   try{DB.collection('posts').onSnapshot(sn=>{const P={};sn.docs.forEach(d=>P[d.id]={...d.data(),id:d.id});state.posts=P;paintPosts()},()=>{})}catch(e){}
   ['thanks','ideas'].forEach(k=>{try{DB.collection(k).orderBy('ts','desc').limit(60).onSnapshot(sn=>{state[k]=sn.docs.map(d=>({...d.data(),id:d.id}));paintLists();if(k==='thanks'&&$('#adm')&&!adm.edit&&!typing())paintAdmin()},()=>{state[k]=state[k]||[];paintLists()})}catch(e){}});
   updBadges();if($('#adm'))paintAdmin();
-  setInterval(loadInbox,30000);
+  if(PLAT){loadInbox();setInterval(loadInbox,30000)}
 }
 document.addEventListener('submit',async e=>{
   const f=e.target.closest('[data-form]');if(!f||f.dataset.form==='care')return;e.preventDefault();
