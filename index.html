@@ -1028,7 +1028,7 @@ function paintLists(){
   if(il){const a=state.ideas||[];il.innerHTML=a.length?a.map(n=>`<li><p>${esc(n.text)}</p><small>${esc(n.name||'Сотрудник')}${n.ts?' · '+fmtD(n.ts):''}</small></li>`).join(''):`<li class="empty">Комментариев пока нет — оставьте первый.</li>`}
 }
 /* ===== Firebase: конфиг веб-приложения из Firebase Console → Project settings → Your apps ===== */
-const FB_CONFIG={apiKey:'',authDomain:'',projectId:'',storageBucket:'',messagingSenderId:'',appId:''};
+const FB_CONFIG={apiKey:'AIzaSyDCeUKMnA7S64oh_bELOtY-qa6yBpGLljY',authDomain:'vrpuls-69f26.firebaseapp.com',projectId:'vrpuls-69f26',storageBucket:'vrpuls-69f26.firebasestorage.app',messagingSenderId:'1015452686802',appId:'1:1015452686802:web:d3b3cc1895b8948202d00b'};
 const FB_SDK='https://www.gstatic.com/firebasejs/12.19.0/firebase-';
 const loadJs=src=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
 function onAuth(){if(ADMIN)loadInbox();else state.inbox=null;editBar();applyTx();if($('#adm'))paintAdmin()}
