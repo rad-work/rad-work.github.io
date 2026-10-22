@@ -167,12 +167,12 @@ function careSectionHTML() {
         <div class="care-grid">
           <div><h2>${care.h}</h2><p>${care.lede}</p><p>${care.note}</p></div>
           <form class="form" data-form="care">
-            <label class="form-title" for="care-text">Ваше обращение</label>
-            <textarea id="care-text" name="text" rows="4" maxlength="1500" required placeholder="Опишите ситуацию или вопрос"></textarea>
             <label class="form-title" for="care-topic">Тема</label>
             <select id="care-topic" name="topic">${topics}</select>
-            <label class="checkbox"><input type="checkbox" name="wantContact" id="care-want-contact"> Хочу, чтобы со мной связались</label>
+            <label class="form-title" for="care-text">Ваше обращение</label>
+            <textarea id="care-text" name="text" rows="4" maxlength="1500" required placeholder="Опишите ситуацию или вопрос"></textarea>
             <input name="contact" id="care-contact" maxlength="120" placeholder="Как с вами связаться (необязательно)" aria-label="Контакт для связи">
+            <label class="checkbox"><input type="checkbox" name="wantContact" id="care-want-contact"> Хочу, чтобы со мной связались</label>
             <button class="btn" type="submit">Отправить</button>
             <div class="form-status" role="status"></div>
           </form>
