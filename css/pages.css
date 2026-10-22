@@ -1,0 +1,425 @@
+/* ===== Внутренние страницы ===== */
+
+.back-link {
+  font: 700 0.625rem/1 var(--font-head);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 2.25rem;
+}
+.page-title {
+  font-size: clamp(2.5rem, 7.4vw, 5.4rem);
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  margin: 0 0 2rem;
+}
+.page-title.with-rule {
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--color-line);
+}
+.lede {
+  font-size: 0.95rem;
+  max-width: 40em;
+  color: var(--color-muted);
+  margin: 0 0 1.75rem;
+}
+
+/* ----- Карьерные треки ----- */
+.tracks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16.25rem, 1fr));
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+.track {
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-width: 0;
+  border-radius: var(--radius);
+}
+.track h3 {
+  font-size: 1.3rem;
+}
+.track ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.track li {
+  padding: 0.4375rem 0 0.4375rem 1.125rem;
+  border-left: 1px solid var(--color-green);
+  position: relative;
+  font-size: 0.75rem;
+}
+/* точка-ступенька на линии трека */
+.track li::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 0.9375rem;
+  width: 0.3125rem;
+  height: 0.3125rem;
+  background: var(--color-green);
+  border-radius: 50%;
+}
+
+/* ----- Обучение ----- */
+.learning-item {
+  max-width: 73%;
+}
+.learning-item .pic {
+  aspect-ratio: 2.27/1;
+  border-radius: var(--radius);
+  object-position: center 60%;
+}
+.learning-item p {
+  margin: 0 0 0.875rem;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+/* ----- План коммуникаций: блоки «Спорт VR» и «Благотворительность» ----- */
+.band {
+  padding: 2rem;
+  margin-top: 3.25rem;
+  border-radius: var(--radius);
+}
+.band.band-sport {
+  background: var(--color-accent-tint);
+}
+.band.band-charity {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+}
+.band h2 {
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+  margin-bottom: 0.75rem;
+}
+.band p {
+  margin: 0 0 1.25rem;
+  max-width: 40em;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+.band .band-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: center;
+}
+.band .placeholder {
+  aspect-ratio: 16/9;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(17, 164, 195, 0.13);
+}
+.mini-list {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border-top: 1px solid var(--color-line);
+}
+.mini-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 0.75rem;
+}
+.mini-list li span {
+  color: var(--color-muted);
+  text-align: right;
+}
+
+/* ----- Спорт и благотворительность: карточки направлений ----- */
+.sport-media {
+  aspect-ratio: 21/8;
+  width: 100%;
+  background: var(--color-gray-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 1rem;
+  border-radius: var(--radius);
+}
+.sport-title {
+  font-size: clamp(3rem, 11vw, 7.5rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  margin: 1.5rem 0 1rem;
+  font-weight: 300;
+}
+body.is-sport-page .sport-title {
+  color: var(--color-accent);
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+.info-grid.three-columns {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.info-card {
+  background: var(--color-surface);
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+}
+.info-card h3 {
+  font-size: 1.2rem;
+  line-height: 1.2;
+}
+.info-card p {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.6rem;
+}
+.card-actions a,
+.card-actions span,
+.card-actions button {
+  font: 500 0.52rem/1 var(--font-head);
+  letter-spacing: 0.06em;
+  border-radius: var(--radius);
+  padding: 0.5rem 0.65rem;
+  text-decoration: none;
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+  background: none;
+  cursor: pointer;
+}
+.card-actions .soon-badge {
+  background: var(--color-green-tint);
+  color: var(--color-green-text);
+  border-color: var(--color-green);
+}
+.card-actions button[aria-pressed='true'] {
+  background: var(--color-accent);
+  color: #fff;
+}
+.badge {
+  display: inline-block;
+  align-self: flex-start;
+  font: 700 0.48rem/1 var(--font-head);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--color-gray-tint);
+  color: var(--color-muted);
+  padding: 0.4rem 0.55rem;
+  border-radius: var(--radius);
+}
+.info-card .badge {
+  background: var(--color-green-tint);
+  color: var(--color-green-text);
+}
+.marathon {
+  background: var(--color-surface);
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto;
+  gap: 0.5rem 1.5rem;
+  align-items: center;
+  padding: 1.1rem 1.4rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+}
+.marathon + .marathon {
+  margin-top: 0.6rem;
+}
+.marathon b {
+  font: 400 1.1rem/1.25 var(--font-serif);
+  display: block;
+}
+.marathon small {
+  font-size: 0.65rem;
+  color: var(--color-muted);
+}
+
+/* ----- Страница поста ----- */
+.post-page {
+  max-width: 46rem;
+}
+.post-page p,
+.post-page li {
+  color: var(--color-text);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  margin: 0 0 0.9rem;
+}
+.post-page ul {
+  margin: 0 0 1.1rem;
+  padding-left: 1.2rem;
+}
+.post-page li {
+  margin: 0 0 0.35rem;
+}
+.post-page h3 {
+  font-size: 1.15rem;
+  margin: 1.6rem 0 0.7rem;
+}
+.post-page a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  word-break: break-word;
+}
+blockquote {
+  margin: 0.4rem 0 1.4rem;
+  padding: 1.1rem 1.3rem;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  background: #f2fafc;
+  font-family: 'Literata', serif;
+  font-weight: 300;
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+.post-files {
+  margin-top: 2.2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #e3e6e8;
+}
+.post-files h3 {
+  margin: 0 0 0.7rem;
+}
+.file-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e3e6e8;
+}
+.file-row > div {
+  min-width: 0;
+}
+.file-row b {
+  display: block;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.file-row small {
+  display: block;
+  color: #7a8186;
+  font-size: 0.72rem;
+  margin-top: 0.15rem;
+}
+.file-row button {
+  flex: none;
+  font: inherit;
+  font-size: 0.72rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+/* ----- Альбом (раскладка как в Telegram) и просмотр фото на весь экран ----- */
+.album {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 1.75rem;
+  max-width: 46rem;
+}
+.album .album-row {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+}
+.album img {
+  display: block;
+  min-width: 0;
+  height: auto;
+  object-fit: cover;
+  border-radius: 0.2rem;
+  cursor: zoom-in;
+  background: var(--color-gray-tint);
+}
+/* скругляем только внешние углы альбома */
+.album .album-row:first-child img:first-child {
+  border-top-left-radius: var(--radius);
+}
+.album .album-row:first-child img:last-child {
+  border-top-right-radius: var(--radius);
+}
+.album .album-row:last-child img:first-child {
+  border-bottom-left-radius: var(--radius);
+}
+.album .album-row:last-child img:last-child {
+  border-bottom-right-radius: var(--radius);
+}
+/* одно фото показываем целиком; !important перебивает размеры, которые скрипт ставит в style */
+.album.is-single img {
+  flex: none !important;
+  width: auto;
+  max-width: 100%;
+  max-height: 28rem;
+  aspect-ratio: auto !important;
+  border-radius: var(--radius);
+  object-fit: contain;
+}
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 20, 22, 0.88);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  cursor: zoom-out;
+}
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 0.2rem;
+}
+
+@media (max-width: 860px) {
+  .learning-item {
+    max-width: 100%;
+  }
+}
+@media (max-width: 760px) {
+  .band .band-columns,
+  .info-grid,
+  .info-grid.three-columns,
+  .marathon {
+    grid-template-columns: 1fr;
+  }
+  .band {
+    padding: 1.4rem;
+  }
+  .sport-media {
+    aspect-ratio: 16/9;
+  }
+}

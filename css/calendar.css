@@ -1,0 +1,385 @@
+/* ===== Календари и события ===== */
+
+/* ----- Главная: месяц слева, список событий справа ----- */
+.home-calendar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.75rem;
+  height: 22.5rem;
+}
+.month-card,
+.months-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  padding: 1.125rem 1.25rem;
+  min-width: 0;
+  border-radius: var(--radius);
+}
+.month-card {
+  height: 100%;
+  overflow: hidden;
+}
+.month-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 0.75rem;
+}
+.month-head b {
+  font: 300 1.125rem/1 var(--font-serif);
+  text-align: center;
+  flex: 1;
+}
+.month-head button {
+  width: 1.875rem;
+  height: 1.875rem;
+  border: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.875rem;
+  flex: none;
+  border-radius: var(--radius);
+}
+
+/* ----- Дни месяца ----- */
+.month-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  text-align: center;
+}
+.month-days span {
+  font: 600 0.5625rem/2.4 var(--font-head);
+  letter-spacing: 0.1em;
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+.month-days i {
+  font-style: normal;
+  font-size: 0.73rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  color: var(--color-text);
+  border-radius: var(--radius);
+}
+.month-days i.other-month {
+  color: #cfcdc8;
+}
+.month-days i.has-events {
+  font-weight: 700;
+  color: var(--color-accent);
+  cursor: pointer;
+  background: var(--color-gray-tint);
+}
+/* точка под числом у дней с событиями */
+.month-days i.has-events::after {
+  content: '';
+  position: absolute;
+  bottom: 0.25rem;
+  width: 0.1875rem;
+  height: 0.1875rem;
+  background: var(--color-text);
+  border-radius: 50%;
+}
+.month-days i.tone-green {
+  background: var(--color-green-tint);
+}
+.month-days i.tone-blue {
+  background: var(--color-accent-tint);
+}
+.month-days i.tone-grey {
+  background: var(--color-gray-tint);
+}
+.month-days i.is-selected {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.month-days i.is-today {
+  box-shadow: inset 0 0 0 0.5px var(--color-red);
+  border-radius: 2px;
+  color: #c8323a;
+  font-weight: 600;
+}
+.month-days i.has-events.is-today {
+  color: var(--color-accent);
+}
+.month-days i.has-events.tone-green,
+.month-days i.has-events.tone-blue,
+.month-days i.has-events.tone-grey {
+  font-weight: 600;
+}
+
+/* ----- Список событий ----- */
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  height: 100%;
+  min-height: 0;
+}
+.event-list li {
+  display: block;
+}
+.event-list.is-full {
+  height: auto;
+  overflow: visible;
+  margin-top: 0.5rem;
+}
+.event-row {
+  display: grid;
+  grid-template-columns: 4.6rem 1fr;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-gray-tint);
+  align-items: center;
+  border-radius: var(--radius);
+}
+a.event-row {
+  text-decoration: none;
+  color: inherit;
+  display: grid;
+}
+.event-row.tone-green {
+  background: var(--color-green-tint);
+}
+.event-row.tone-blue {
+  background: var(--color-accent-tint);
+}
+.event-row.tone-grey {
+  background: var(--color-gray-tint);
+}
+.event-row .event-date {
+  font: 300 1.75rem/1 var(--font-serif);
+  color: var(--color-accent);
+  text-align: center;
+  white-space: nowrap;
+}
+.event-row .event-date small {
+  display: block;
+  font: 700 0.5625rem/1.6 var(--font-head);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.event-row h3 {
+  font-size: 0.9375rem;
+  line-height: 1.25;
+}
+.event-row p {
+  margin: 2px 0 0;
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+}
+.event-row.is-selected {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+/* ----- Внутренние страницы: два месяца подряд и списки событий под ними ----- */
+.months-card {
+  display: grid;
+  grid-template-columns: 1.875rem minmax(0, 1fr) minmax(0, 1fr) 1.875rem;
+  gap: 0 1.5rem;
+  padding: 1.25rem;
+}
+.months-card > * {
+  grid-row: 1;
+}
+.months-card > .month-nav:first-child {
+  grid-column: 1;
+}
+.months-card > .month-pane {
+  grid-column: 2;
+}
+.months-card > .second-month {
+  grid-column: 3;
+}
+.months-card > .month-nav:last-child {
+  grid-column: 4;
+}
+.months-card .month-nav {
+  align-self: start;
+}
+.months-card .month-nav button {
+  width: 1.875rem;
+  height: 1.875rem;
+  border: 1px solid var(--color-line);
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-text);
+  border-radius: var(--radius);
+}
+.months-card .month-pane b {
+  display: block;
+  text-align: center;
+  font: 300 1.125rem/1 var(--font-serif);
+  margin-bottom: 0.625rem;
+}
+.event-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+.event-column .empty {
+  font-size: 0.75rem;
+}
+.calendar-empty {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  margin: 1rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+.calendar-empty button {
+  font: 500 0.57rem/1 var(--font-head);
+  letter-spacing: 0.06em;
+  color: var(--color-accent);
+  background: none;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+}
+
+/* ----- Фильтры и легенда ----- */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin: 1.75rem 0 0.9rem;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+}
+.filter-bar .chips {
+  margin: 0;
+}
+.chips button {
+  font: 500 0.57rem/1 var(--font-head);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  background: none;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.8rem;
+  cursor: pointer;
+}
+.chips button[aria-pressed='true'] {
+  background: var(--color-accent);
+  color: #fff;
+}
+.legend {
+  display: flex;
+  gap: 1.1rem;
+  flex-wrap: wrap;
+  font-size: 0.6rem;
+  color: var(--color-muted);
+}
+.legend i {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-right: 0.4rem;
+  vertical-align: -1px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* ----- Страница события ----- */
+.event-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+.event-page .placeholder {
+  aspect-ratio: 4/3;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.event-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 1rem;
+  margin: 1.25rem 0 1.5rem;
+  border-top: 1px solid var(--color-rule);
+  border-bottom: 1px solid var(--color-rule);
+  padding-block: 1rem;
+}
+.event-meta small {
+  display: block;
+  font: 700 0.5rem/1.4 var(--font-head);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 0.25rem;
+}
+.event-meta b {
+  font: 400 1.05rem/1.25 var(--font-serif);
+}
+.event-text {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  max-width: 34em;
+}
+.event-note {
+  font-size: 0.65rem;
+  color: var(--color-muted);
+  margin-top: 1rem;
+}
+
+@media (max-width: 860px) {
+  .home-calendar {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .month-card {
+    height: auto;
+  }
+  .event-list {
+    max-height: 21.25rem;
+  }
+  /* второй месяц прячем */
+  .months-card {
+    grid-template-columns: 1.875rem minmax(0, 1fr) 1.875rem;
+  }
+  .months-card .second-month {
+    display: none;
+  }
+  .months-card > .month-nav:last-child {
+    grid-column: 3;
+  }
+}
+@media (max-width: 760px) {
+  .event-page,
+  .event-columns {
+    grid-template-columns: 1fr;
+  }
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-bar .chips {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .filter-bar .chips button {
+    width: 100%;
+  }
+}

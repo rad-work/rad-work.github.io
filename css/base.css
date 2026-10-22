@@ -1,0 +1,418 @@
+/* ===== Основа: цвета, шрифты, каркас страницы и общие элементы ===== */
+
+:root {
+  color-scheme: light;
+
+  /* Цвета */
+  --color-page: #fbfbfb; /* фон страницы */
+  --color-surface: #ffffff; /* фон карточек и форм */
+  --color-text: #1b1719;
+  --color-muted: #6b6a66; /* второстепенный текст */
+  --color-line: #e6e4e0; /* светлые линии и рамки */
+  --color-rule: #d6d3cc; /* линия под заголовками разделов */
+  --color-accent: #11a4c3; /* основной акцент: кнопки, ссылки */
+  --color-accent-tint: #e3f4f8;
+  --color-accent-dark: #0b7e99;
+  --color-on-accent: #ffffff; /* текст на акцентном фоне */
+  --color-green: #45c98a;
+  --color-green-tint: #e7f8f0;
+  --color-green-text: #2faf72;
+  --color-gray-tint: #f0f0f0;
+  --color-red: #e5484d;
+
+  /* Шрифты */
+  --font-head: 'Montserrat', system-ui, sans-serif;
+  --font-body: 'Montserrat', system-ui, sans-serif;
+  --font-serif: 'Literata', Georgia, serif;
+
+  --radius: 0.3rem;
+}
+
+/* Размер шрифта (а с ним и всех rem) уменьшается на узких экранах */
+html {
+  font-size: 20px;
+}
+@media (max-width: 1500px) {
+  html {
+    font-size: 18px;
+  }
+}
+@media (max-width: 1200px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  letter-spacing: 0.01em;
+  background: var(--color-page);
+  color: var(--color-text);
+  font: 300 1rem/1.7 var(--font-body);
+  padding-inline: clamp(1rem, 4vw, 3rem);
+  padding-block: 0;
+}
+a {
+  color: inherit;
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  line-height: 1.12;
+  text-wrap: balance;
+  margin: 0;
+}
+h3 {
+  font-weight: 400;
+}
+.eyebrow {
+  font: 700 0.6rem/1 var(--font-head);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 0.1875rem;
+}
+
+/* Плавное появление страницы (если пользователь не отключил анимации) */
+@media (prefers-reduced-motion: no-preference) {
+  .fade-in {
+    animation: fade-in 0.5s ease both;
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.375rem);
+    }
+  }
+}
+
+/* ----- Шапка и разделы ----- */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-block: 0.55rem;
+  border-bottom: 1px solid var(--color-line);
+}
+.logo {
+  font: 400 1.23rem/1 var(--font-serif);
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  color: var(--color-text);
+}
+nav {
+  display: flex;
+  gap: 0.25rem 1.5rem;
+  flex-wrap: wrap;
+}
+nav a {
+  font: 700 0.6rem/1 var(--font-head);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--color-muted);
+  padding: 0.625rem 0;
+  border-bottom: 2px solid transparent;
+}
+nav a[aria-current='page'] {
+  color: var(--color-accent);
+  border-color: var(--color-green);
+}
+main {
+  padding-block: 2.5rem 0;
+  outline: none;
+}
+section {
+  padding-block: 3.5rem 0;
+  scroll-margin-top: 1.5rem;
+}
+.section-head {
+  border-bottom: 1px solid var(--color-rule);
+  padding-bottom: 0.875rem;
+  margin-bottom: 1.75rem;
+}
+.section-head h2 {
+  font-size: clamp(1.75rem, 3.4vw, 2.45rem);
+}
+
+/* ----- Общие элементы ----- */
+.placeholder {
+  background: var(--color-gray-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted);
+  aspect-ratio: 3/2;
+  border-radius: var(--radius);
+}
+.pic {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3/2;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: var(--color-gray-tint);
+}
+.btn {
+  font: 700 0.6rem/1 var(--font-head);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  padding: 0.8125rem 1.25rem;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: inline-block;
+}
+.btn.pill {
+  padding: 1rem 1.75rem;
+  font-size: 0.8125rem;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  align-self: flex-start;
+}
+.more-link {
+  font: 500 0.57rem/1 var(--font-head);
+  letter-spacing: 0.06em;
+  color: var(--color-accent);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  align-self: flex-start;
+}
+.text-link {
+  font: 700 0.6rem/1.4 var(--font-head);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+.empty {
+  color: var(--color-muted);
+  margin: 0;
+}
+.small-print {
+  font-size: 0.62rem;
+  color: var(--color-muted);
+}
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 5rem;
+  transform: translateX(-50%);
+  background: var(--color-text);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: var(--radius);
+  z-index: 130;
+}
+
+/* ----- Формы ----- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-width: 0;
+}
+.form-title {
+  font: 400 1.0625rem/1.2 var(--font-serif);
+}
+.form input,
+.form textarea {
+  font: 300 0.875rem/1.5 var(--font-body);
+  color: var(--color-text);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  padding: 0.625rem 0;
+  width: 100%;
+  resize: vertical;
+}
+.form input::placeholder,
+.form textarea::placeholder {
+  color: var(--color-muted);
+}
+.form input:focus,
+.form textarea:focus {
+  outline: none;
+  border-bottom-width: 2px;
+}
+.form select {
+  font: 300 0.875rem/1.5 var(--font-body);
+  color: var(--color-text);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-accent);
+  padding: 0.625rem 0;
+  width: 100%;
+  border-radius: 0;
+}
+.form .form-status {
+  font-size: 0.75rem;
+  color: var(--color-accent-dark);
+  min-height: 1.4em;
+}
+
+/* ----- Полезные ссылки и подвал ----- */
+.useful-links {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  padding: 2.25rem clamp(1.25rem, 4vw, 2.5rem);
+  margin-top: 4.5rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  border-radius: var(--radius);
+}
+.useful-links[hidden] {
+  display: none;
+}
+.useful-links h2 {
+  font-size: clamp(1.625rem, 3vw, 2.17rem);
+}
+.useful-links .links {
+  display: flex;
+  gap: 0.625rem 1.625rem;
+  flex-wrap: wrap;
+  max-width: 28.75rem;
+}
+.useful-links .links a {
+  font: 700 0.625rem/1 var(--font-head);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--color-on-accent);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+  padding-bottom: 0.3125rem;
+}
+footer {
+  padding-block: 1.25rem 2.25rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+}
+.footer-link {
+  font: 700 0.625rem/1 var(--font-head);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+/* ----- Нижнее меню на телефоне (вместо меню в шапке) ----- */
+.tab-bar {
+  display: none;
+  border-radius: var(--radius);
+}
+@media (max-width: 760px) {
+  header nav {
+    display: none;
+  }
+  header {
+    justify-content: center;
+  }
+  body {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  }
+  .tab-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 4.6rem 1fr 1fr;
+    align-items: end;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.97);
+    border-top: 1px solid var(--color-line);
+    padding: 0.35rem 0.4rem calc(0.35rem + env(safe-area-inset-bottom, 0px));
+  }
+  .tab-bar a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    text-decoration: none;
+    color: var(--color-muted);
+    padding: 0.35rem 0;
+    font: 500 0.625rem/1 var(--font-head);
+    letter-spacing: 0.02em;
+    min-width: 0;
+    border-bottom: 0;
+    text-transform: none;
+  }
+  .tab-bar a svg {
+    width: 1.45rem;
+    height: 1.45rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .tab-bar a[aria-current='page'] {
+    color: var(--color-accent);
+    border: 0;
+  }
+  .tab-bar a[aria-current='page'] svg {
+    stroke-width: 1.9;
+  }
+  /* круглая кнопка «VR» посередине — на главную */
+  .tab-bar a.tab-home {
+    color: #fff;
+    align-self: center;
+  }
+  .tab-bar a.tab-home span {
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font: 400 1.1rem/1 var(--font-serif);
+    letter-spacing: 0.04em;
+    margin-top: -1.4rem;
+    box-shadow:
+      0 0 0 0.35rem rgba(255, 255, 255, 0.97),
+      0 0.2rem 0.8rem rgba(17, 164, 195, 0.35);
+  }
+  .tab-bar a.tab-home[aria-current='page'] span {
+    background: var(--color-accent-dark);
+  }
+}
+@media (max-width: 480px) {
+  main {
+    padding-top: 1.75rem;
+  }
+}
