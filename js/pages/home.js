@@ -221,11 +221,14 @@ function ideaSectionHTML() {
 const formatNoteDate = timestamp =>
   timestamp ? new Date(timestamp).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) : '';
 
-/** Записки на стене благодарностей (пока база недоступна — примеры) и комментарии к идеям. */
+/**
+ * Записки на стене благодарностей и комментарии к идеям.
+ * Пока данные из базы не пришли, списки пустые; если база не подключилась — записки-примеры.
+ */
 function drawThanksAndIdeas() {
   const thanksList = $('#thanks-list');
-  if (thanksList) {
-    const notes = (db ? store.thanks : SAMPLE_THANKS) || [];
+  const notes = dbFailed ? SAMPLE_THANKS : store.thanks;
+  if (thanksList && notes) {
     thanksList.innerHTML = notes.length
       ? notes
           .slice(0, 6)
@@ -241,8 +244,8 @@ function drawThanksAndIdeas() {
   }
 
   const ideasList = $('#ideas-list');
-  if (ideasList) {
-    const ideas = store.ideas || [];
+  const ideas = dbFailed ? [] : store.ideas;
+  if (ideasList && ideas) {
     ideasList.innerHTML = ideas.length
       ? ideas
           .map(idea => {

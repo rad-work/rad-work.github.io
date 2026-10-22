@@ -41,6 +41,7 @@ async function initFirebase() {
     auth = null;
   }
   if (!db) {
+    dbFailed = true;
     isAdmin = false;
     drawThanksAndIdeas();
     if ($('#admin-panel')) renderAdmin();

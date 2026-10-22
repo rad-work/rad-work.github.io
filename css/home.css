@@ -306,21 +306,19 @@
 
 /* ----- Слова благодарности: записки на стене ----- */
 .thanks {
+  --title-size: clamp(1.75rem, 3vw, 2.5rem);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
-  gap: 0;
+  gap: 2.25rem 5.5rem;
 }
 .thanks-intro {
-  border-top: 1px solid var(--color-rule);
-  padding-top: 1.375rem;
-  padding-right: 3rem;
   display: flex;
   flex-direction: column;
   gap: 1.125rem;
   min-width: 0;
 }
 .thanks-intro h2 {
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-size: var(--title-size);
   overflow-wrap: anywhere;
 }
 .thanks-intro > p {
@@ -330,12 +328,14 @@
   max-width: 28em;
 }
 .thanks-notes {
-  border-left: 1px solid var(--color-rule);
-  padding-left: 2.5rem;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
-  align-content: start;
+  align-content: stretch;
+}
+/* «Пока записок нет» — одной строкой на всю ширину стены */
+.thanks-notes .empty {
+  grid-column: 1 / -1;
 }
 .thanks-note {
   position: relative;
@@ -377,6 +377,31 @@
 .thanks-note small {
   font-size: 0.6875rem;
   color: var(--color-muted);
+}
+/* на широком экране колонки одной высоты: стена записок тянется до низа формы или форма — до низа стены */
+@media (min-width: 861px) {
+  .thanks {
+    padding-bottom: 2rem; /* место под сообщением формы */
+  }
+  /* верх записок — вровень с верхом заглавных букв заголовка: над ними в строке заголовка ~0.28 его размера */
+  .thanks-notes {
+    padding-top: calc(0.28 * var(--title-size));
+  }
+  /* у надписи убираем пустое место над заглавными буквами (в её строке ~0.5 размера), чтобы буквы начинались вровень */
+  .thanks-notes .empty {
+    margin-top: -0.5em;
+  }
+  .thanks-intro .form {
+    position: relative;
+    margin-top: auto;
+  }
+  /* сообщение под кнопкой не занимает места в колонке, иначе низ кнопки не совпадёт с низом стены */
+  .thanks-intro .form-status {
+    position: absolute;
+    top: calc(100% + 0.875rem);
+    left: 0;
+    right: 0;
+  }
 }
 
 /* ----- Предложить идею ----- */
@@ -423,14 +448,6 @@
   .thanks,
   .idea-grid {
     grid-template-columns: 1fr;
-  }
-  .thanks-intro {
-    padding-right: 0;
-  }
-  .thanks-notes {
-    border-left: 0;
-    padding-left: 0;
-    margin-top: 2.25rem;
   }
   .idea-box {
     padding: 1.5rem;

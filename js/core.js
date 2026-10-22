@@ -97,7 +97,8 @@ function onClick(selector, handler) {
 }
 
 /* ----- Подключение к базе и вход ----- */
-let db = null; // Firestore или null, если база недоступна
+let db = null; // Firestore; null — пока подключается или если база недоступна
+let dbFailed = false; // база не подключилась — сайт работает на встроенном контенте
 let auth = null; // Firebase Auth
 let userId = null; // UID текущего пользователя: анонимного сотрудника или админа
 let isLoggedIn = false; // вошёл по почте и паролю, а не анонимно
