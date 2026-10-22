@@ -33,11 +33,6 @@ const reminderLabel = id => (reminders[id] ? 'Напоминание включ�
 
 function sportPage() {
   const sport = SITE.sport;
-  const teamCardHTML = item => `<div class="info-card">
-          <h3>${escapeHtml(item.t)}</h3>
-          <p>${escapeHtml(item.x)}</p>
-          <div class="card-actions"><span class="soon-badge">Опрос — скоро</span><span class="soon-badge">Набор — скоро</span><span class="soon-badge">Telegram — скоро</span></div>
-        </div>`;
   const soonCardHTML = item => `<div class="info-card">
           <span class="badge">Скоро</span>
           <h3>${escapeHtml(item.t)}</h3>
@@ -65,10 +60,6 @@ function sportPage() {
     `<div class="sport-media" role="img" aria-label="Место под фото или видео">${sport.media}</div>
     <h1 class="sport-title">Спорт VR</h1>
     <p class="lede">${sport.lede}</p>
-    <section id="sport-team">
-      <div class="section-head"><h2>${sport.team.h}</h2></div>
-      <div class="info-grid">${PLAN_2027.sport.map(teamCardHTML).join('')}</div>
-    </section>
     <section id="sport-marathons">
       <div class="section-head"><h2>${sport.marathon.h}</h2></div>
       ${marathonsFromPlan().map(marathonHTML).join('')}

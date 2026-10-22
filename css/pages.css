@@ -202,7 +202,6 @@ body.is-sport-page .sport-title {
   padding-top: 0.6rem;
 }
 .card-actions a,
-.card-actions span,
 .card-actions button {
   font: 500 0.52rem/1 var(--font-head);
   letter-spacing: 0.06em;
@@ -213,11 +212,6 @@ body.is-sport-page .sport-title {
   color: var(--color-accent);
   background: none;
   cursor: pointer;
-}
-.card-actions .soon-badge {
-  background: var(--color-green-tint);
-  color: var(--color-green-text);
-  border-color: var(--color-green);
 }
 .card-actions button[aria-pressed='true'] {
   background: var(--color-accent);
