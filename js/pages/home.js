@@ -92,20 +92,25 @@ onClick('[data-slide]', dot => {
 
 /* ----- Разделы с карточками и опросы ----- */
 
+/** Раздел с карточками; если их больше четырёх — карусель со стрелками справа от заголовка. */
 function homeSectionHTML(sectionId) {
   if (sectionId === 'surveys') return surveysSectionHTML();
   const title =
     sectionId === 'ambassadors' ? 'Амбассадоры VR' : SITE.groups.find(group => group.id === sectionId).title;
-  return `<section id="${sectionId}">
-      <div class="section-head"><h2>${title}</h2></div>
-      ${cardsHTML(visiblePosts(sectionId))}
+  const posts = visiblePosts(sectionId);
+  const isCarousel = posts.length > 4;
+  const arrows = `<div class="carousel-nav">
+        <button type="button" data-carousel-step="-1" aria-label="Назад">←</button>
+        <button type="button" data-carousel-step="1" aria-label="Вперёд">→</button>
+      </div>`;
+  return `<section id="${sectionId}"${isCarousel ? ' class="carousel is-scrollable"' : ''}>
+      <div class="section-head"><h2>${title}</h2>${isCarousel ? arrows : ''}</div>
+      ${cardsHTML(posts)}
     </section>`;
 }
 
-/** Карточки раздела; если их больше четырёх — карусель со стрелками. */
 function cardsHTML(posts) {
   if (!posts.length) return '<p class="empty">Скоро здесь появятся материалы.</p>';
-  const isCarousel = posts.length > 4;
   const cards = posts.map(
     post => `<div class="card">
           ${pictureHTML(post.img, post.t, post.fx, post.fy)}
@@ -116,14 +121,7 @@ function cardsHTML(posts) {
           </div>
         </div>`,
   );
-  const arrows = `<div class="carousel-nav">
-        <button type="button" data-carousel-step="-1" aria-label="Назад">←</button>
-        <button type="button" data-carousel-step="1" aria-label="Вперёд">→</button>
-      </div>`;
-  return `<div class="carousel${isCarousel ? ' is-scrollable' : ''}">
-      <div class="card-grid">${cards.join('')}</div>
-      ${isCarousel ? arrows : ''}
-    </div>`;
+  return `<div class="card-grid">${cards.join('')}</div>`;
 }
 
 function surveysSectionHTML() {
