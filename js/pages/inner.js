@@ -28,8 +28,8 @@ const upcomingCharityEvents = () =>
     .slice(0, 3);
 
 /** Блок «Календарь событий» внутренней страницы: легенда, два месяца и списки событий. */
-function pageCalendarHTML(scope, filtersHTML, categories) {
-  return `<div class="filter-bar">${filtersHTML}${legendHTML(categories)}</div>
+function pageCalendarHTML(scope, filtersHTML) {
+  return `<div class="filter-bar">${filtersHTML}</div>
     <div class="months-card" data-calendar="${scope}"></div>
     <div data-calendar-list="${scope}" style="margin-top:0.75rem"></div>`;
 }
@@ -51,7 +51,7 @@ function planPage() {
   return (
     backLinkHTML('home') +
     `<h1 class="page-title with-rule">План внутренних коммуникаций</h1>
-    ${pageCalendarHTML('plan', `<div class="chips" role="group" aria-label="Фильтр событий">${filters}</div>`, ['corp', 'prof', 'sport', 'charity'])}
+    ${pageCalendarHTML('plan', `<div class="chips" role="group" aria-label="Фильтр событий">${filters}</div>`)}
     <div class="band band-sport">
       <div class="band-columns">
         <div>
