@@ -60,6 +60,14 @@ function sportPage() {
     `<div class="sport-media" role="img" aria-label="Место под фото или видео">${sport.media}</div>
     <h1 class="sport-title">Спорт VR</h1>
     <p class="lede">${sport.lede}</p>
+    <section id="sport-calendar">
+      <div class="section-head"><h2>Спортивный год 2027</h2></div>
+      ${pageCalendarHTML('sport', '<span></span>', ['sport'])}
+    </section>
+    <section id="sport-fitness">
+      <div class="section-head"><h2>${sport.fitness.h}</h2></div>
+      <div class="info-grid three-columns">${fitnessCards.join('')}${PLAN_2027.sport2.slice(1).map(soonCardHTML).join('')}</div>
+    </section>
     <section id="sport-marathons">
       <div class="section-head"><h2>${sport.marathon.h}</h2></div>
       ${marathonsFromPlan().map(marathonHTML).join('')}
@@ -68,15 +76,6 @@ function sportPage() {
         .filter(row => /Подготовка|Истории/.test(row.t))
         .map(soonCardHTML)
         .join('')}</div>
-    </section>
-    <section id="sport-fitness">
-      <div class="section-head"><h2>${sport.fitness.h}</h2></div>
-      <div class="info-grid three-columns">${fitnessCards.join('')}${PLAN_2027.sport2.slice(1).map(soonCardHTML).join('')}</div>
-    </section>
-    <section id="sport-calendar">
-      <div class="section-head"><h2>Спортивный год 2027</h2></div>
-      ${pageCalendarHTML('sport', '<span></span>', ['sport'])}
-      <p class="small-print" style="margin-top:0.6rem">Плановые активности: даты требуют подтверждения.</p>
     </section>`
   );
 }
