@@ -2,11 +2,9 @@
 
 const adminState = {
   tab: 'posts', // открытая вкладка
-  draft: null, // пост или опрос (isPoll) в редакторе
-  eventDraft: null, // событие в редакторе
+  draft: null, // пост в редакторе
   message: '', // сообщение под вкладками
   careFilter: 'new', // какие обращения в Службу заботы показывать
-  eventCategory: 'all', // фильтр событий по типу
 };
 
 function adminPage() {
@@ -35,14 +33,9 @@ function loginFormHTML() {
 
 const ADMIN_TAB_RENDERERS = {
   posts: postsTabHTML,
-  photos: photosTabHTML,
   thanks: thanksTabHTML,
   care: careTabHTML,
-  calendar: calendarTabHTML,
-  texts: textsTabHTML,
-  polls: pollsTabHTML,
   quote: quoteTabHTML,
-  links: linksTabHTML,
 };
 
 /** Рисует панель: проверку доступа, форму входа или вкладки. */
@@ -104,24 +97,6 @@ async function createPostDoc(fields) {
     .collection('posts')
     .doc(id)
     .set({ ...fields, custom: true, ts: Date.now() });
-}
-
-/** Убирает поле из правки встроенного поста; если в правке больше ничего нет, удаляет её. */
-async function removePostField(key, field) {
-  const doc = { ...((store.posts || {})[key] || {}) };
-  delete doc.id;
-  delete doc[field];
-  if (Object.keys(doc).some(name => name !== 'section')) await db.collection('posts').doc(key).set(doc);
-  else await db.collection('posts').doc(key).delete();
-}
-
-async function saveEventDoc(docId, fields) {
-  const doc = { ...((store.events || {})[docId] || {}) };
-  delete doc.id;
-  await db
-    .collection('events')
-    .doc(docId)
-    .set({ ...doc, ...fields });
 }
 
 /** Кладёт фото в коллекцию photos и возвращает ссылку на него для поста («ph:<id>»). */
@@ -255,104 +230,6 @@ const ADMIN_ACTIONS = {
     repaintEditorFiles();
   },
 
-  /* обложки на вкладке «Фотографии» */
-  'cover-crop': ({ key, section }) => {
-    const doc = (store.posts || {})[key];
-    const url = imageUrl(
-      (doc && doc.img) || (postsInSection(section).find(item => item.key === key) || {}).img,
-    );
-    if (!url) return;
-    openCropDialog(url, defaultAspectRatio(section), async dataUrl => {
-      try {
-        await savePostDoc(key, { section, img: dataUrl });
-        flashMessage('Фото подрезано');
-      } catch (error) {
-        flashMessage('Не удалось сохранить.');
-      }
-    });
-  },
-  'cover-remove': async ({ key, section }) => {
-    await savePostDoc(key, { section, img: '' });
-    flashMessage('Фото убрано');
-  },
-  'cover-reset': async ({ key }) => {
-    await removePostField(key, 'img');
-    await removePostField(key, 'imgs');
-    flashMessage('Возвращено исходное фото');
-  },
-
-  /* опросы */
-  'poll-new': () => {
-    adminState.draft = { isPoll: true, key: null, title: '', description: '', url: '', status: 'Открыт' };
-    renderAdmin();
-  },
-  'poll-edit': ({ key }) => {
-    const poll = postsInSection('surveys').find(item => item.key === key);
-    adminState.draft = {
-      isPoll: true,
-      key,
-      title: poll.t,
-      description: poll.d || '',
-      url: poll.url || '',
-      status: poll.tag || 'Открыт',
-    };
-    renderAdmin();
-  },
-
-  /* события */
-  'event-new': () => {
-    adminState.eventDraft = {
-      id: null,
-      title: '',
-      date: '',
-      end: '',
-      category: 'corp',
-      time: '',
-      place: '',
-      description: '',
-      scopes: ['plan', 'home'],
-      planned: false,
-    };
-    renderAdmin();
-  },
-  'event-edit': ({ id }) => {
-    const event = allEvents().find(item => item.id === id);
-    adminState.eventDraft = {
-      id,
-      isCustom: !!event.custom,
-      title: event.t,
-      date: event.date,
-      end: event.end || '',
-      category: event.cat,
-      time: event.time || '',
-      place: event.place || '',
-      description: event.d || '',
-      scopes: (event.sc || []).slice(),
-      planned: !!event.soft,
-    };
-    renderAdmin();
-  },
-  'event-cancel': () => {
-    adminState.eventDraft = null;
-    renderAdmin();
-  },
-  'event-toggle': async ({ id }) => {
-    const event = allEvents().find(item => item.id === id);
-    await saveEventDoc(event.custom ? id : 'ev__' + id, { hidden: !event.hidden });
-    flashMessage(event.hidden ? 'Событие показано' : 'Событие скрыто');
-  },
-  'event-delete': async ({ id }) => {
-    await db.collection('events').doc(id).delete();
-    flashMessage('Событие удалено');
-  },
-  'event-reset': async ({ id }) => {
-    await db
-      .collection('events')
-      .doc('ev__' + id)
-      .delete();
-    flashMessage('Возвращено исходное событие');
-  },
-
   /* благодарности и Служба заботы */
   'thanks-approve': params => moderateThanks(params, true),
   'thanks-reject': params => moderateThanks(params, false),
@@ -370,22 +247,12 @@ const ADMIN_ACTIONS = {
     flashMessage('Обновлено');
   },
 
-  /* цитата, тексты, режим правки, выход */
+  /* цитата, выход */
   'quote-reset': async () => {
     await db.collection('settings').doc('quote').delete();
     flashMessage('Возвращена исходная цитата');
   },
-  'text-reset': async ({ index }) => {
-    const pair = (store.texts || [])[Number(index)];
-    if (pair) await saveTextReplacement(pair[0], '');
-    renderAdmin();
-  },
-  'edit-mode': () => {
-    setEditMode(true);
-    location.hash = '#home';
-  },
   logout: async () => {
-    setEditMode(false);
     isLoggedIn = false;
     isAdmin = false;
     adminState.draft = null;
@@ -458,11 +325,6 @@ document.addEventListener('change', event => {
 onClick('[data-admin-tab]', button => {
   adminState.tab = button.dataset.adminTab;
   adminState.draft = null;
-  adminState.eventDraft = null;
-  renderAdmin();
-});
-onClick('[data-event-category]', button => {
-  adminState.eventCategory = button.dataset.eventCategory;
   renderAdmin();
 });
 onClick('[data-care-filter]', button => {
@@ -471,7 +333,7 @@ onClick('[data-care-filter]', button => {
 });
 onClick('[data-action]', runAdminAction);
 
-/* ----- Загрузка файлов: вложения к посту, фото поста, замена обложки ----- */
+/* ----- Загрузка файлов: вложения к посту и фото поста ----- */
 
 document.addEventListener('change', async event => {
   const input = event.target;
@@ -481,28 +343,14 @@ document.addEventListener('change', async event => {
     await attachFiles(input);
     return;
   }
+  if (input.id !== 'post-photo-input') return;
   try {
-    if (input.id === 'post-photo-input') {
-      for (const photo of [...input.files]) {
-        const dataUrl = await resizeImageFile(photo, 1000);
-        adminState.draft.photos.push(await uploadPhoto(dataUrl));
-        repaintPhotoEditor();
-      }
-      input.value = '';
-      return;
+    for (const photo of [...input.files]) {
+      const dataUrl = await resizeImageFile(photo, 1000);
+      adminState.draft.photos.push(await uploadPhoto(dataUrl));
+      repaintPhotoEditor();
     }
-    const dataUrl = await readFileAsDataUrl(input.files[0]);
     input.value = '';
-    if (input.dataset.replacePhoto === undefined) return;
-    const { key, section } = input.dataset;
-    openCropDialog(dataUrl, defaultAspectRatio(section), async cropped => {
-      try {
-        await savePostDoc(key, { section, img: cropped });
-        flashMessage('Фото заменено');
-      } catch (error) {
-        flashMessage('Не удалось сохранить.');
-      }
-    });
   } catch (error) {
     flashMessage('Не удалось загрузить фото. Попробуйте другой файл.');
   }
@@ -532,7 +380,7 @@ async function attachFiles(input) {
   }
 }
 
-/* ----- Формы панели: вход, замена текста и сохранение черновиков ----- */
+/* ----- Формы панели: вход и сохранение поста и цитаты ----- */
 
 document.addEventListener('submit', async event => {
   const form = event.target.closest('[data-admin-form]');
@@ -540,7 +388,6 @@ document.addEventListener('submit', async event => {
   event.preventDefault();
   const kind = form.dataset.adminForm;
   if (kind === 'login') return submitLogin();
-  if (kind === 'text') return submitTextReplacement();
   if (!db) return;
   try {
     await ADMIN_FORM_SAVERS[kind]?.();
@@ -568,22 +415,9 @@ async function submitLogin() {
   }
 }
 
-async function submitTextReplacement() {
-  const original = normalizeText($('#text-original').value);
-  const replacement = normalizeText($('#text-new').value);
-  if (!original || !replacement) return;
-  await saveTextReplacement(original, replacement);
-  $('#text-original').value = '';
-  $('#text-new').value = '';
-  renderAdmin();
-}
-
 const ADMIN_FORM_SAVERS = {
   post: savePostDraft,
-  event: saveEventDraft,
-  links: saveLinks,
   quote: saveQuote,
-  poll: savePollDraft,
 };
 
 const fieldValue = id => document.getElementById(id).value;
@@ -622,51 +456,6 @@ async function savePostDraft() {
   flashMessage('Сохранено. Пост уже на сайте.');
 }
 
-async function saveEventDraft() {
-  const draft = adminState.eventDraft;
-  const scopes = [...document.querySelectorAll('#event-scopes input:checked')].map(input => input.value);
-  if (!fieldValue('event-title').trim() || !fieldValue('event-start')) return;
-  if (!scopes.length) {
-    flashMessage('Выберите хотя бы один календарь');
-    return;
-  }
-  let end = fieldValue('event-end');
-  if (end && end <= fieldValue('event-start')) end = ''; // конец не раньше начала
-  const fields = {
-    t: fieldValue('event-title').trim(),
-    cat: fieldValue('event-category'),
-    date: fieldValue('event-start'),
-    end,
-    time: fieldValue('event-time').trim(),
-    place: fieldValue('event-place').trim(),
-    d: fieldValue('event-description').trim() || 'Подробности появятся ближе к дате.',
-    sc: scopes,
-    soft: document.getElementById('event-planned').checked,
-  };
-  if (draft.id) {
-    await saveEventDoc(draft.isCustom ? draft.id : 'ev__' + draft.id, fields);
-  } else {
-    await db
-      .collection('events')
-      .doc('ec' + Date.now().toString(36))
-      .set({ custom: true, ts: Date.now(), ...fields });
-  }
-  adminState.eventDraft = null;
-  flashMessage('Событие сохранено');
-}
-
-async function saveLinks() {
-  const mail = fieldValue('link-mail').trim();
-  const knowledgeBase = fieldValue('link-kb').trim();
-  const isValid = url => !url || /^https?:\/\//.test(url);
-  if (!isValid(mail) || !isValid(knowledgeBase)) {
-    flashMessage('Адрес должен начинаться с https://');
-    return;
-  }
-  await db.collection('settings').doc('links').set({ mail, kb: knowledgeBase });
-  flashMessage('Ссылки сохранены');
-}
-
 async function saveQuote() {
   const paragraphs = fieldValue('quote-text-input')
     .trim()
@@ -683,24 +472,4 @@ async function saveQuote() {
       by: fieldValue('quote-author-input').trim(),
     });
   flashMessage('Цитата обновлена на главной');
-}
-
-async function savePollDraft() {
-  const draft = adminState.draft;
-  const url = fieldValue('poll-url').trim();
-  if (url && !/^https?:\/\//i.test(url)) {
-    flashMessage('Ссылка должна начинаться с https://');
-    return;
-  }
-  const fields = {
-    t: fieldValue('poll-title').trim(),
-    d: fieldValue('poll-description').trim(),
-    url,
-    tag: fieldValue('poll-status'),
-  };
-  if (!fields.t) return;
-  if (draft.key) await savePostDoc(draft.key, { section: 'surveys', ...fields });
-  else await createPostDoc({ section: 'surveys', ...fields });
-  adminState.draft = null;
-  flashMessage('Опрос сохранён');
 }

@@ -2,23 +2,9 @@
 
 const ADMIN_TABS = [
   ['posts', 'Посты'],
-  ['photos', 'Фотографии'],
   ['thanks', 'Благодарности'],
   ['care', 'Служба заботы'],
-  ['calendar', 'Календарь'],
-  ['texts', 'Тексты сайта'],
-  ['polls', 'Опросы'],
   ['quote', 'Цитата недели'],
-  ['links', 'Ссылки'],
-];
-
-/* Календари, в которых можно показать событие (ключи хранятся в базе) */
-const CALENDAR_SCOPES = [
-  ['home', 'Главная'],
-  ['plan', 'План коммуникаций'],
-  ['charity', 'Благотворительность'],
-  ['sport', 'Спорт VR'],
-  ['learn', 'Обучение'],
 ];
 
 /** Кнопки вкладок (с числом новых записок и обращений) и строка сообщений под ними. */
@@ -237,116 +223,6 @@ function postsTabHTML() {
     <div>${rows.map(rowHTML).join('')}</div>`;
 }
 
-function photosTabHTML() {
-  const rows = adminPostRows().filter(row => row.section !== 'surveys');
-  const cardHTML = row => {
-    const picture = imageUrl(row.img) ? pictureHTML(row.img, row.t) : '<div class="placeholder pic"></div>';
-    const target = `data-key="${row.key}" data-section="${row.section}"`;
-    const coverButtons = row.img
-      ? `<button data-action="cover-crop" ${target}>Подрезать</button><button data-action="cover-remove" ${target}>Убрать</button>`
-      : '';
-    const resetButton =
-      row.edited && !row.custom
-        ? `<button data-action="cover-reset" data-key="${row.key}">Исходное</button>`
-        : '';
-    return `<div class="photo-card">
-        ${picture}
-        <div><b>${escapeHtml(row.t)}</b><small>${sectionsLabel(row)}</small></div>
-        <div class="admin-actions" style="justify-content:flex-start"><label class="upload-button">Заменить фото<input type="file" accept="image/*" hidden data-replace-photo ${target}></label>${coverButtons}${resetButton}</div>
-      </div>`;
-  };
-  return `<p class="admin-hint">Загрузите новое фото или нажмите «Подрезать»: перетащите кадр и выберите масштаб. Фото автоматически уменьшается для быстрой загрузки.</p>
-    <div class="photo-grid">${rows.map(cardHTML).join('')}</div>`;
-}
-
-/* ----- Календарь ----- */
-
-function eventDatesLabel(event) {
-  const start = parseIsoDate(event.date);
-  const end = event.end && event.end !== event.date ? parseIsoDate(event.end) : null;
-  const format = date => `${date.getDate()} ${MONTH_NAMES_SHORT[date.getMonth()]}`;
-  return format(start) + (end ? ' – ' + format(end) : '');
-}
-
-function eventFormHTML() {
-  const draft = adminState.eventDraft;
-  const categoryOptions = Object.entries(EVENT_CATEGORIES)
-    .map(
-      ([id, category]) =>
-        `<option value="${id}" ${draft.category === id ? 'selected' : ''}>${category.label}</option>`,
-    )
-    .join('');
-  const scopeBoxes = CALENDAR_SCOPES.map(
-    ([id, title]) =>
-      `<label class="checkbox"><input type="checkbox" value="${id}" ${(draft.scopes || []).includes(id) ? 'checked' : ''}> ${title}</label>`,
-  ).join('');
-  return `<form class="admin-form form" data-admin-form="event">
-      <h3>${draft.id ? 'Редактирование события' : 'Новое событие'}</h3>
-      <label class="field-label" for="event-title">Название</label>
-      <input id="event-title" type="text" maxlength="160" required value="${escapeHtml(draft.title)}">
-      <label class="field-label" for="event-category">Тип события</label>
-      <select id="event-category">${categoryOptions}</select>
-      <div class="field-pair">
-        <div><label class="field-label" for="event-start">Дата начала</label><input id="event-start" type="date" required value="${escapeHtml(draft.date)}"></div>
-        <div><label class="field-label" for="event-end">Дата окончания (если несколько дней)</label><input id="event-end" type="date" value="${escapeHtml(draft.end || '')}"></div>
-      </div>
-      <div class="field-pair">
-        <div><label class="field-label" for="event-time">Время</label><input id="event-time" type="text" maxlength="40" placeholder="Например: 11:00" value="${escapeHtml(draft.time || '')}"></div>
-        <div><label class="field-label" for="event-place">Место</label><input id="event-place" type="text" maxlength="120" value="${escapeHtml(draft.place || '')}"></div>
-      </div>
-      <label class="field-label" for="event-description">Описание (откроется на странице события)</label>
-      <textarea id="event-description" rows="4" maxlength="1500">${escapeHtml(draft.description || '')}</textarea>
-      <div class="field-label">В каких календарях показывать</div>
-      <div id="event-scopes" class="checkbox-grid">${scopeBoxes}</div>
-      <label class="checkbox"><input type="checkbox" id="event-planned" ${draft.planned ? 'checked' : ''}> Дата плановая: на странице события будет пометка «требует подтверждения»</label>
-      <div class="admin-actions" style="justify-content:flex-start"><button class="btn" type="submit">Сохранить</button><button type="button" data-action="event-cancel">Отмена</button></div>
-    </form>`;
-}
-
-function calendarTabHTML() {
-  const filter = adminState.eventCategory;
-  const events = allEvents().filter(event => filter === 'all' || event.cat === filter);
-  const filters = [
-    ['all', 'Все'],
-    ...Object.entries(EVENT_CATEGORIES).map(([id, category]) => [id, category.label]),
-  ];
-  const filterChips = filters
-    .map(
-      ([id, label]) =>
-        `<button data-event-category="${id}" aria-pressed="${filter === id}">${label}</button>`,
-    )
-    .join('');
-  const scopeTitle = scope => (CALENDAR_SCOPES.find(([id]) => id === scope) || [0, scope])[1];
-  const rowHTML = event => {
-    const category = EVENT_CATEGORIES[event.cat] ? EVENT_CATEGORIES[event.cat].label : '';
-    const notes =
-      (event.soft ? ' · плановая дата' : '') +
-      (event.custom ? ' · добавлено' : event.edited ? ' · изменено' : '') +
-      (event.hidden ? ' · скрыто' : '');
-    let extraButton = '';
-    if (event.custom)
-      extraButton = `<button data-action="event-delete" data-id="${event.id}">Удалить</button>`;
-    else if (event.edited)
-      extraButton = `<button data-action="event-reset" data-id="${event.id}">Вернуть исходное</button>`;
-    return `<div class="admin-row admin-event">
-        <div class="admin-event-date"><b>${eventDatesLabel(event)}</b><small>${parseIsoDate(event.date).getFullYear()}</small></div>
-        <div><h3>${escapeHtml(event.t)}</h3><small>${category} · ${(event.sc || []).map(scopeTitle).join(', ')}${notes}</small></div>
-        <div class="admin-actions">
-          <button data-action="event-edit" data-id="${event.id}">Изменить</button>
-          <button data-action="event-toggle" data-id="${event.id}">${event.hidden ? 'Показать' : 'Скрыть'}</button>
-          ${extraButton}
-        </div>
-      </div>`;
-  };
-  return `<p class="admin-hint">Здесь можно добавить событие, изменить дату, название и описание, выбрать календари, в которых оно показывается, или скрыть событие. Изменения сразу видны на сайте.</p>
-    <div class="filter-bar">
-      <div class="chips">${filterChips}</div>
-      <button class="btn" data-action="event-new">+ Новое событие</button>
-    </div>
-    ${adminState.eventDraft ? eventFormHTML() : ''}
-    <div>${events.length ? events.map(rowHTML).join('') : '<p class="empty">Событий нет.</p>'}</div>`;
-}
-
 /* ----- Благодарности и Служба заботы ----- */
 
 function thanksTabHTML() {
@@ -402,63 +278,7 @@ function careTabHTML() {
     ${items.length ? items.map(itemHTML).join('') : '<p class="empty">Обращений нет.</p>'}`;
 }
 
-/* ----- Тексты, опросы, цитата, ссылки ----- */
-
-function textsTabHTML() {
-  const pairs = store.texts || [];
-  const rows = pairs
-    .map(
-      ([from, to], index) => `<div class="admin-row" style="grid-template-columns:minmax(0,1fr) auto">
-        <div><small>Было</small><div>${escapeHtml(from)}</div><small>Стало</small><div><b>${escapeHtml(to)}</b></div></div>
-        <div class="admin-actions"><button data-action="text-reset" data-index="${index}">Вернуть</button></div>
-      </div>`,
-    )
-    .join('');
-  return `<p class="admin-hint">Любой текст на сайте можно изменить прямо на странице. Нажмите кнопку ниже, откройте нужную страницу и кликните по тексту. Заголовки новостей, их описания и фото меняются во вкладке «Посты», события — во вкладке «Календарь».</p>
-    <div class="admin-actions" style="justify-content:flex-start;margin-bottom:1.25rem"><button class="btn" data-action="edit-mode">Открыть сайт в режиме правки</button></div>
-    <form class="admin-form form" data-admin-form="text">
-      <h3>Заменить текст вручную</h3>
-      <label class="field-label" for="text-original">Исходный текст (точно как на сайте)</label>
-      <input id="text-original" type="text" maxlength="400" required>
-      <label class="field-label" for="text-new">Новый текст</label>
-      <input id="text-new" type="text" maxlength="1200" required>
-      <div class="admin-actions" style="justify-content:flex-start"><button class="btn" type="submit">Сохранить замену</button></div>
-    </form>
-    <h3 class="admin-subtitle">Изменённые тексты · ${pairs.length}</h3>
-    ${rows || '<p class="empty">Пока ничего не менялось.</p>'}`;
-}
-
-function pollsTabHTML() {
-  const polls = postsInSection('surveys');
-  const draft = adminState.draft && adminState.draft.isPoll ? adminState.draft : null;
-  const formHTML = () => `<form class="admin-form form" data-admin-form="poll">
-      <h3>${draft.key ? 'Редактирование опроса' : 'Новый опрос'}</h3>
-      <label class="field-label" for="poll-title">Название</label>
-      <input id="poll-title" type="text" required maxlength="160" value="${escapeHtml(draft.title || '')}">
-      <label class="field-label" for="poll-description">Описание</label>
-      <input id="poll-description" type="text" maxlength="200" value="${escapeHtml(draft.description || '')}">
-      <label class="field-label" for="poll-url">Ссылка на опрос (https://…)</label>
-      <input id="poll-url" type="url" placeholder="https://" value="${escapeHtml(draft.url || '')}">
-      <label class="field-label" for="poll-status">Статус</label>
-      <select id="poll-status"><option ${draft.status !== 'Закрыт' ? 'selected' : ''}>Открыт</option><option ${draft.status === 'Закрыт' ? 'selected' : ''}>Закрыт</option></select>
-      <div class="admin-actions" style="justify-content:flex-start"><button class="btn" type="submit">Сохранить</button><button type="button" data-action="draft-cancel">Отмена</button></div>
-    </form>`;
-  const rowHTML = poll => {
-    const details = `${escapeHtml(poll.d || '')} · ${escapeHtml(poll.tag || 'Открыт')}${poll.url ? ' · есть ссылка' : ' · без ссылки'}${poll.hidden ? ' · скрыт' : ''}`;
-    return `<div class="admin-row" style="grid-template-columns:minmax(0,1fr) auto">
-        <div><h3>${escapeHtml(poll.t)}</h3><small>${details}</small></div>
-        <div class="admin-actions">
-          <button data-action="poll-edit" data-key="${poll.key}">Изменить</button>
-          <button data-action="post-toggle" data-key="${poll.key}" data-section="surveys">${poll.hidden ? 'Показать' : 'Скрыть'}</button>
-          ${poll.custom ? `<button data-action="post-delete" data-key="${poll.key}">Удалить</button>` : ''}
-        </div>
-      </div>`;
-  };
-  return `<p class="admin-hint">Создайте опрос в любом сервисе (Яндекс Формы, Google Forms и т.д.) и вставьте ссылку: сотрудники перейдут по ней с главной страницы.</p>
-    <div class="filter-bar"><span></span><button class="btn" data-action="poll-new">+ Новый опрос</button></div>
-    ${draft ? formHTML() : ''}
-    <div>${polls.map(rowHTML).join('')}</div>`;
-}
+/* ----- Цитата недели ----- */
 
 function quoteTabHTML() {
   const quote = currentQuote();
@@ -474,17 +294,5 @@ function quoteTabHTML() {
       <label class="field-label" for="quote-author-input">Автор</label>
       <input id="quote-author-input" type="text" maxlength="160" value="${escapeHtml(quote.by)}">
       <div class="admin-actions" style="justify-content:flex-start"><button class="btn" type="submit">Сохранить цитату</button>${resetButton}</div>
-    </form>`;
-}
-
-function linksTabHTML() {
-  const links = store.links || {};
-  return `<p class="admin-hint">Адреса для блока «Полезные ссылки» внизу сайта. Пока адрес не указан, ссылка ведёт на страницу «Контакты».</p>
-    <form class="admin-form form" data-admin-form="links">
-      <label class="field-label" for="link-mail">Корпоративная почта (адрес входа)</label>
-      <input id="link-mail" type="url" placeholder="https://" value="${escapeHtml(links.mail || '')}">
-      <label class="field-label" for="link-kb">База знаний</label>
-      <input id="link-kb" type="url" placeholder="https://" value="${escapeHtml(links.kb || '')}">
-      <div class="admin-actions" style="justify-content:flex-start"><button class="btn" type="submit">Сохранить ссылки</button></div>
     </form>`;
 }

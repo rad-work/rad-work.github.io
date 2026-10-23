@@ -1,4 +1,4 @@
-/* ===== Админ-панель, окна подрезки фото и правки текста, режим правки ===== */
+/* ===== Админ-панель и окно подрезки фото ===== */
 
 /* ----- Единый вид кнопок панели и окон ----- */
 #admin-panel button,
@@ -150,8 +150,7 @@
   font-size: 1rem;
   line-height: 1.25;
 }
-.admin-row small,
-.photo-card small {
+.admin-row small {
   display: block;
   color: var(--color-muted);
   font-size: 0.65rem;
@@ -173,14 +172,6 @@
 }
 .admin-actions .btn {
   padding: 0.8rem 1.25rem;
-}
-.admin-event .admin-event-date {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.8rem;
-}
-.admin-event .admin-event-date small {
-  font-size: 0.6rem;
 }
 
 /* ----- Формы редактирования ----- */
@@ -227,33 +218,11 @@
   grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
   gap: 0.4rem 1rem;
 }
-.field-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
 .file-list .file-row {
   padding: 0.55rem 0;
 }
 
-/* ----- Фото: вкладка «Фотографии» и фото в редакторе поста ----- */
-.photo-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-  gap: 1.1rem;
-}
-.photo-card {
-  border: 1px solid var(--color-line);
-  background: var(--color-surface);
-  padding: 0.8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  border-radius: var(--radius);
-}
-.photo-card b {
-  font: 400 0.95rem/1.25 var(--font-serif);
-}
+/* ----- Фото в редакторе поста ----- */
 .photo-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
@@ -395,7 +364,7 @@
   cursor: default;
 }
 
-/* ----- Окна: подрезка фото и правка текста ----- */
+/* ----- Окно подрезки фото ----- */
 .modal {
   position: fixed;
   inset: 0;
@@ -419,16 +388,6 @@
 }
 .modal-box h3 {
   font-size: 1.2rem;
-}
-.modal-box textarea {
-  width: 100%;
-  font: 300 0.9rem/1.5 var(--font-body);
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius);
-  padding: 0.6rem;
-  background: var(--color-surface);
-  color: var(--color-text);
-  box-sizing: border-box;
 }
 .crop-ratios {
   display: flex;
@@ -462,43 +421,6 @@
 }
 .crop-zoom input {
   flex: 1;
-}
-
-/* ----- Режим правки текстов ----- */
-#edit-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 95;
-  background: var(--color-green);
-  color: #fff;
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-  padding: calc(0.5rem + env(safe-area-inset-top, 0px)) 1rem 0.5rem;
-  font-size: 0.72rem;
-}
-#edit-bar button {
-  font: 500 0.6rem/1 var(--font-head);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #fff;
-  background: transparent;
-  border: 1px solid #fff;
-  border-radius: var(--radius);
-  padding: 0.6rem 1rem;
-  min-height: 2.5rem;
-  cursor: pointer;
-}
-body.is-editing {
-  padding-top: 3.2rem;
-}
-body.is-editing .is-editable {
-  outline: 1px dashed rgba(17, 164, 195, 0.75);
-  outline-offset: 2px;
-  cursor: text;
 }
 
 /* ----- Телефон ----- */
@@ -538,7 +460,6 @@ body.is-editing .is-editable {
   }
   /* кнопки в две колонки; !important перебивает выравнивание, заданное в style */
   .admin-row .admin-actions,
-  .photo-card .admin-actions,
   .admin-form .admin-actions {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
@@ -546,18 +467,11 @@ body.is-editing .is-editable {
     justify-content: stretch !important;
   }
   .admin-row .admin-actions > *,
-  .photo-card .admin-actions > *,
   .admin-form .admin-actions > * {
     width: 100%;
   }
   .admin-form {
     padding: 1rem;
-  }
-  .field-pair {
-    grid-template-columns: 1fr;
-  }
-  .photo-grid {
-    grid-template-columns: 1fr;
   }
   .photo-list {
     grid-template-columns: 1fr 1fr;
@@ -602,8 +516,5 @@ body.is-editing .is-editable {
   }
   .crop-zoom input {
     min-height: 2.75rem;
-  }
-  #edit-bar {
-    flex-wrap: wrap;
   }
 }

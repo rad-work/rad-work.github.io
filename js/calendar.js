@@ -160,12 +160,9 @@ function showCalendarMonth(page) {
   drawCalendars();
 }
 
-/** После обновления событий в базе: перерисовать админку, открытую страницу события или календари. */
+/** После обновления событий в базе: перерисовать открытую страницу события или календари. */
 function refreshAfterEventsChange() {
-  if ($('#admin-panel')) {
-    if (!adminState.draft && !adminState.eventDraft && !isTypingInAdmin()) renderAdmin();
-    return;
-  }
+  if ($('#admin-panel')) return;
   if (/^#(e-|charity-cal|plan|sport|learning)/.test(location.hash)) route(false);
   else drawCalendars(); // в том числе календарь главной
 }

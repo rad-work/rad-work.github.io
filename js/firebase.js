@@ -81,8 +81,6 @@ function watchAuth() {
 function onAuthChanged() {
   if (isAdmin) loadInbox();
   else store.inbox = null;
-  updateEditBar();
-  applyTextReplacements();
   if ($('#admin-panel')) renderAdmin();
 }
 
@@ -114,7 +112,6 @@ function watchCollections() {
       store.texts = texts ? (texts.data().pairs || []).map(pair => [pair.o, pair.n]) : [];
       rebuildTextReplacements();
       applyTextReplacements();
-      if ($('#admin-panel') && adminState.tab === 'texts' && !adminState.draft) renderAdmin();
     },
   );
 
