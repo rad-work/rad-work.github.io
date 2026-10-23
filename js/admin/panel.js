@@ -11,7 +11,15 @@ const adminState = {
 };
 
 function adminPage() {
-  return `<h1 class="page-title" style="font-size:clamp(2rem,4vw,3.2rem);margin-bottom:1.5rem">Админ-панель</h1><div id="admin-panel"></div>`;
+  return '<div id="admin-panel"></div>';
+}
+
+/** Строка заголовка панели; справа — кнопка «Выйти», когда админ вошёл. */
+function adminHeaderHTML(withLogout) {
+  const account = withLogout
+    ? '<div class="admin-account"><span class="small-print">Вы вошли как администратор</span><button type="button" data-action="logout">Выйти</button></div>'
+    : '';
+  return `<div class="admin-top"><h1 class="page-title">Админ-панель</h1>${account}</div>`;
 }
 
 function loginFormHTML() {
@@ -43,18 +51,18 @@ function renderAdmin() {
   const panel = $('#admin-panel');
   if (!panel) return;
   if (isAdmin === null) {
-    panel.innerHTML = '<p class="empty">Проверяем доступ…</p>';
+    panel.innerHTML = adminHeaderHTML(false) + '<p class="empty">Проверяем доступ…</p>';
     return;
   }
   if (!isLoggedIn) {
-    if (!panel.querySelector('.login-form')) panel.innerHTML = loginFormHTML();
+    if (!panel.querySelector('.login-form')) panel.innerHTML = adminHeaderHTML(false) + loginFormHTML();
     return;
   }
   const notAdminWarning = isAdmin
     ? ''
     : `<div class="warning">Вход выполнен, но этой учётной записи нет в списке администраторов: изменения не сохранятся. Добавьте в Firestore документ admins/${escapeHtml(userId || '')}.</div>`;
   panel.innerHTML =
-    '<div class="admin-top"><span class="small-print">Вы вошли как администратор</span><button type="button" data-action="logout">Выйти</button></div>' +
+    adminHeaderHTML(true) +
     notAdminWarning +
     adminTabsHTML() +
     ADMIN_TAB_RENDERERS[adminState.tab]();

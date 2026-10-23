@@ -83,6 +83,17 @@
   gap: 1rem;
   margin-bottom: 1rem;
 }
+/* в «Админ-панели» почти все буквы строчные, и середина слова ниже середины строки;
+   отступ снизу опускает кнопку «Выйти» на эту разницу */
+.admin-top .page-title {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  margin: 0 0 0.2em;
+}
+.admin-account {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 .admin-tabs {
   display: flex;
   flex-wrap: wrap;
