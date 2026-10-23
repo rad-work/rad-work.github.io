@@ -199,7 +199,7 @@ const ADMIN_ACTIONS = {
     const position = Number(index);
     const url = imageUrl(adminState.draft.photos[position]);
     if (!url) return;
-    openCropDialog(url, defaultAspectRatio(adminState.draft.section), async dataUrl => {
+    openCropDialog(url, async dataUrl => {
       try {
         adminState.draft.photos[position] = await uploadPhoto(dataUrl);
         repaintEditorPhotos();

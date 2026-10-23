@@ -73,7 +73,7 @@ function selectedSections() {
   return checked.length ? checked : adminState.draft.sections || [];
 }
 
-/** Фото поста в редакторе: подрезка, удаление и порядок — стрелками или перетаскиванием (первое — обложка). */
+/** Фото поста в редакторе: обрезка, удаление и порядок — стрелками или перетаскиванием (первое — обложка). */
 function editorPhotosHTML() {
   const photos = adminState.draft.photos || [];
   if (!photos.length) return '<p class="small-print">Фото пока нет.</p>';
@@ -84,7 +84,7 @@ function editorPhotosHTML() {
         ${url ? `<img src="${escapeHtml(url)}" alt="" draggable="false">` : '<div class="thumb"></div>'}
         <small>${index ? 'Фото ' + (index + 1) : 'Обложка'}</small>
         <div class="admin-actions">
-          <button type="button" data-action="photo-crop" data-index="${index}">Подрезать</button>
+          <button type="button" data-action="photo-crop" data-index="${index}">Обрезать</button>
           <button type="button" data-action="photo-remove" data-index="${index}">Убрать</button>
           <button type="button" data-action="photo-left" data-index="${index}" ${index ? '' : 'disabled'}>←</button>
           <button type="button" data-action="photo-right" data-index="${index}" ${index < photos.length - 1 ? '' : 'disabled'}>→</button>

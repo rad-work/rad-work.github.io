@@ -1,14 +1,4 @@
-/* ===== Фото для постов: уменьшение при загрузке и окно подрезки ===== */
-
-/* Пропорции кадра в окне подрезки */
-const CROP_ASPECT_RATIOS = [
-  ['Карточка', 1.28],
-  ['Главная тема', 1.385],
-  ['Широкое 16:9', 16 / 9],
-  ['Квадрат', 1],
-];
-
-const defaultAspectRatio = section => (section === 'hero' ? 1.385 : 1.28);
+/* ===== Фото для постов: уменьшение при загрузке и окно обрезки ===== */
 
 /** JPEG из canvas: качество снижаем шагами по 0,1, пока data-URL длиннее 190 000 символов (но не ниже 0,35). */
 function compressToJpeg(canvas, quality) {
@@ -43,22 +33,21 @@ function resizeImageFile(file, maxSize = 900) {
 }
 
 /**
- * Окно подрезки: фото перетаскивается внутри рамки выбранных пропорций и масштабируется.
- * По «Готово» вызывает onDone(data-URL подрезанного фото шириной до 1000 px).
+ * Окно обрезки, как в фоторедакторе: фото видно целиком, поверх — рамка на всё фото.
+ * Рамку тянут за углы и края и передвигают.
+ * По «Готово» вызывает onDone(data-URL обрезанного фото, большая сторона до 1000 px).
  */
-function openCropDialog(source, initialRatio, onDone) {
-  const ratioButtons = CROP_ASPECT_RATIOS.map(
-    ([label, value]) =>
-      `<button type="button" data-ratio="${value}" aria-pressed="${Math.abs(value - initialRatio) < 0.01}">${label}</button>`,
-  ).join('');
+function openCropDialog(source, onDone) {
+  const handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']
+    .map(handle => `<span class="crop-handle" data-handle="${handle}"></span>`)
+    .join('');
   const modal = document.createElement('div');
   modal.className = 'modal';
-  modal.innerHTML = `<div class="modal-box" role="dialog" aria-label="Подрезка фото">
-      <h3>Подрезать фото</h3>
-      <div class="crop-ratios">${ratioButtons}</div>
-      <div class="crop-frame"><img alt="" draggable="false"></div>
-      <label class="crop-zoom">Масштаб <input type="range" min="1" max="3" step="0.01" value="1"></label>
-      <p class="small-print">Перетащите фото, чтобы выбрать нужную часть кадра.</p>
+  modal.innerHTML = `<div class="modal-box" role="dialog" aria-label="Обрезка фото">
+      <h3>Обрезать фото</h3>
+      <div class="crop-area">
+        <div class="crop-stage"><img alt="" draggable="false"><div class="crop-box">${handles}</div></div>
+      </div>
       <div class="admin-actions" style="justify-content:flex-end">
         <button type="button" data-crop-action="cancel">Отмена</button>
         <button type="button" class="btn" data-crop-action="save">Готово</button>
@@ -66,115 +55,98 @@ function openCropDialog(source, initialRatio, onDone) {
     </div>`;
   document.body.appendChild(modal);
 
-  const frame = modal.querySelector('.crop-frame');
-  const preview = frame.querySelector('img');
-  const zoomInput = modal.querySelector('.crop-zoom input');
+  const area = modal.querySelector('.crop-area');
+  const stage = modal.querySelector('.crop-stage');
+  const preview = stage.querySelector('img');
+  const box = stage.querySelector('.crop-box');
   const image = new Image();
 
-  let ratio = initialRatio;
-  let frameWidth = 0;
-  let frameHeight = 0;
-  let baseScale = 1; // масштаб, при котором фото ровно закрывает рамку
-  let zoom = 1; // увеличение поверх baseScale (ползунок «Масштаб»)
-  let offsetX = 0; // сдвиг левого верхнего угла фото относительно рамки, px (≤ 0)
-  let offsetY = 0;
-  let drag = null; // положение указателя и фото в начале перетаскивания
+  let scale = 1; // во сколько раз фото на экране меньше настоящего
+  let crop = { x: 0, y: 0, w: 0, h: 0 }; // рамка в пикселях настоящего фото
+  let drag = null; // что тянем, где был указатель и рамка в начале
 
-  /* Не даём краю фото заехать внутрь рамки */
-  const clampOffset = () => {
-    const scale = baseScale * zoom;
-    offsetX = Math.min(0, Math.max(frameWidth - image.naturalWidth * scale, offsetX));
-    offsetY = Math.min(0, Math.max(frameHeight - image.naturalHeight * scale, offsetY));
-  };
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  const minSide = () => 40 / scale; // рамка не меньше 40 px на экране
+
   const redraw = () => {
-    clampOffset();
-    const scale = baseScale * zoom;
-    preview.style.width = image.naturalWidth * scale + 'px';
-    preview.style.height = image.naturalHeight * scale + 'px';
-    preview.style.transform = `translate(${offsetX}px,${offsetY}px)`;
+    box.style.left = crop.x * scale + 'px';
+    box.style.top = crop.y * scale + 'px';
+    box.style.width = crop.w * scale + 'px';
+    box.style.height = crop.h * scale + 'px';
   };
-  /* Рамка под выбранные пропорции, фото — по центру и без увеличения */
+  /* Фото целиком вписываем в окно по ширине и по высоте экрана */
   const layout = () => {
-    frameWidth = frame.clientWidth;
-    frameHeight = Math.round(frameWidth / ratio);
-    frame.style.height = frameHeight + 'px';
-    baseScale = Math.max(frameWidth / image.naturalWidth, frameHeight / image.naturalHeight);
-    zoom = 1;
-    zoomInput.value = 1;
-    offsetX = (frameWidth - image.naturalWidth * baseScale) / 2;
-    offsetY = (frameHeight - image.naturalHeight * baseScale) / 2;
+    if (!image.naturalWidth) return; // фото ещё не загрузилось
+    const padding = parseFloat(getComputedStyle(area).paddingLeft) || 0;
+    const maxWidth = area.clientWidth - 2 * padding;
+    const maxHeight = Math.max(160, window.innerHeight * 0.55);
+    scale = Math.min(maxWidth / image.naturalWidth, maxHeight / image.naturalHeight);
+    stage.style.width = image.naturalWidth * scale + 'px';
+    stage.style.height = image.naturalHeight * scale + 'px';
     redraw();
+  };
+  /* Тянем край или угол: двигаются только его стороны, противоположные стоят на месте */
+  const resize = (handle, dx, dy) => {
+    const start = drag.crop;
+    let left = start.x;
+    let top = start.y;
+    let right = start.x + start.w;
+    let bottom = start.y + start.h;
+    if (handle.includes('w')) left = clamp(left + dx, 0, right - minSide());
+    if (handle.includes('e')) right = clamp(right + dx, left + minSide(), image.naturalWidth);
+    if (handle.includes('n')) top = clamp(top + dy, 0, bottom - minSide());
+    if (handle.includes('s')) bottom = clamp(bottom + dy, top + minSide(), image.naturalHeight);
+    crop = { x: left, y: top, w: right - left, h: bottom - top };
   };
 
   image.onload = () => {
     preview.src = source;
+    crop = { x: 0, y: 0, w: image.naturalWidth, h: image.naturalHeight };
     layout();
   };
   image.src = source;
 
-  frame.addEventListener('pointerdown', event => {
-    drag = { pointerX: event.clientX, pointerY: event.clientY, offsetX, offsetY };
-    frame.setPointerCapture(event.pointerId);
+  area.addEventListener('pointerdown', event => {
+    const handle = event.target.closest('[data-handle]')?.dataset.handle;
+    if (!handle && !box.contains(event.target)) return;
+    drag = { handle: handle || 'move', pointerX: event.clientX, pointerY: event.clientY, crop: { ...crop } };
+    area.setPointerCapture(event.pointerId);
+    event.preventDefault();
   });
-  frame.addEventListener('pointermove', event => {
+  area.addEventListener('pointermove', event => {
     if (!drag) return;
-    offsetX = drag.offsetX + event.clientX - drag.pointerX;
-    offsetY = drag.offsetY + event.clientY - drag.pointerY;
+    const dx = (event.clientX - drag.pointerX) / scale;
+    const dy = (event.clientY - drag.pointerY) / scale;
+    if (drag.handle === 'move') {
+      crop.x = clamp(drag.crop.x + dx, 0, image.naturalWidth - crop.w);
+      crop.y = clamp(drag.crop.y + dy, 0, image.naturalHeight - crop.h);
+    } else {
+      resize(drag.handle, dx, dy);
+    }
     redraw();
   });
   const stopDrag = () => {
     drag = null;
   };
-  frame.addEventListener('pointerup', stopDrag);
-  frame.addEventListener('pointercancel', stopDrag);
+  area.addEventListener('pointerup', stopDrag);
+  area.addEventListener('pointercancel', stopDrag);
+  window.addEventListener('resize', layout);
 
-  /* Масштаб меняем относительно центра рамки */
-  zoomInput.addEventListener('input', () => {
-    const oldScale = baseScale * zoom;
-    const centerX = (frameWidth / 2 - offsetX) / oldScale;
-    const centerY = (frameHeight / 2 - offsetY) / oldScale;
-    zoom = Number(zoomInput.value);
-    const newScale = baseScale * zoom;
-    offsetX = frameWidth / 2 - centerX * newScale;
-    offsetY = frameHeight / 2 - centerY * newScale;
-    redraw();
-  });
-
-  modal.querySelectorAll('[data-ratio]').forEach(button =>
-    button.addEventListener('click', () => {
-      ratio = Number(button.dataset.ratio);
-      modal
-        .querySelectorAll('[data-ratio]')
-        .forEach(other => other.setAttribute('aria-pressed', other === button));
-      layout();
-    }),
-  );
-
-  modal.querySelector('[data-crop-action="cancel"]').addEventListener('click', () => modal.remove());
+  const close = () => {
+    window.removeEventListener('resize', layout);
+    modal.remove();
+  };
+  modal.querySelector('[data-crop-action="cancel"]').addEventListener('click', close);
   modal.querySelector('[data-crop-action="save"]').addEventListener('click', () => {
-    const scale = baseScale * zoom;
-    const sourceWidth = frameWidth / scale;
-    const sourceHeight = frameHeight / scale;
-    const outputWidth = Math.min(1000, Math.round(sourceWidth));
-    const outputHeight = Math.round(outputWidth / ratio);
+    const outputScale = Math.min(1, 1000 / Math.max(crop.w, crop.h));
     const canvas = document.createElement('canvas');
-    canvas.width = outputWidth;
-    canvas.height = outputHeight;
+    canvas.width = Math.max(1, Math.round(crop.w * outputScale));
+    canvas.height = Math.max(1, Math.round(crop.h * outputScale));
     canvas
       .getContext('2d')
-      .drawImage(
-        image,
-        -offsetX / scale,
-        -offsetY / scale,
-        sourceWidth,
-        sourceHeight,
-        0,
-        0,
-        outputWidth,
-        outputHeight,
-      );
+      .drawImage(image, crop.x, crop.y, crop.w, crop.h, 0, 0, canvas.width, canvas.height);
     const dataUrl = compressToJpeg(canvas, 0.82);
-    modal.remove();
+    close();
     onDone(dataUrl);
   });
 }
