@@ -154,8 +154,6 @@ const ADMIN_ACTIONS = {
       photos: [],
       files: [],
       removedFiles: [],
-      focusX: null,
-      focusY: null,
       hidden: false,
     };
     renderAdmin();
@@ -174,8 +172,6 @@ const ADMIN_ACTIONS = {
       photos: [row.img, ...(row.imgs || [])].filter(Boolean),
       files: (row.files || []).slice(),
       removedFiles: [],
-      focusX: row.fx ?? null,
-      focusY: row.fy ?? null,
       hidden: !!row.hidden,
     };
     renderAdmin();
@@ -206,7 +202,7 @@ const ADMIN_ACTIONS = {
     openCropDialog(url, defaultAspectRatio(adminState.draft.section), async dataUrl => {
       try {
         adminState.draft.photos[position] = await uploadPhoto(dataUrl);
-        repaintPhotoEditor();
+        repaintEditorPhotos();
       } catch (error) {
         flashMessage('Не удалось сохранить фото.');
       }
@@ -214,16 +210,10 @@ const ADMIN_ACTIONS = {
   },
   'photo-remove': ({ index }) => {
     adminState.draft.photos.splice(Number(index), 1);
-    repaintPhotoEditor();
+    repaintEditorPhotos();
   },
   'photo-left': ({ index }) => movePhoto(Number(index), -1),
   'photo-right': ({ index }) => movePhoto(Number(index), 1),
-  'focus-reset': () => {
-    adminState.draft.focusX = null;
-    adminState.draft.focusY = null;
-    repaintFocusPicker();
-    repaintPreview();
-  },
   'file-remove': ({ index }) => {
     const [removed] = adminState.draft.files.splice(Number(index), 1);
     if (removed) adminState.draft.removedFiles.push(removed); // удалим из базы при сохранении поста
@@ -261,19 +251,13 @@ const ADMIN_ACTIONS = {
   },
 };
 
-function repaintPhotoEditor() {
-  repaintEditorPhotos();
-  repaintFocusPicker();
-  repaintPreview();
-}
-
 /** Меняет фото местами с соседним (step = -1 или 1); первое фото — обложка. */
 function movePhoto(index, step) {
   const photos = adminState.draft.photos;
   const target = index + step;
   if (target < 0 || target >= photos.length) return;
   [photos[index], photos[target]] = [photos[target], photos[index]];
-  repaintPhotoEditor();
+  repaintEditorPhotos();
 }
 
 /** Публикует записку (текст можно было поправить в поле) или отклоняет её. */
@@ -300,25 +284,10 @@ async function runAdminAction(button) {
   }
 }
 
-/* Клик по фото «Точки фокуса» задаёт точку фокуса обложки в процентах */
-onClick('.focus-picker', (picker, event) => {
-  if (!adminState.draft) return;
-  const box = picker.getBoundingClientRect();
-  const percent = (offset, size) => Math.round(Math.min(100, Math.max(0, (offset / size) * 100)));
-  adminState.draft.focusX = percent(event.clientX - box.left, box.width);
-  adminState.draft.focusY = percent(event.clientY - box.top, box.height);
-  repaintFocusPicker();
-  repaintPreview();
-});
-
-/* Превью поста обновляется при вводе текста и при выборе разделов */
-document.addEventListener('input', event => {
-  if (event.target.closest?.('[data-admin-form="post"]') && adminState.draft) repaintPreview();
-});
+/* Отмеченные разделы запоминаются в черновике, чтобы пережить перерисовку редактора */
 document.addEventListener('change', event => {
   if (event.target.closest?.('#post-sections') && adminState.draft) {
     adminState.draft.sections = selectedSections();
-    repaintPreview();
   }
 });
 
@@ -348,7 +317,7 @@ document.addEventListener('change', async event => {
     for (const photo of [...input.files]) {
       const dataUrl = await resizeImageFile(photo, 1000);
       adminState.draft.photos.push(await uploadPhoto(dataUrl));
-      repaintPhotoEditor();
+      repaintEditorPhotos();
     }
     input.value = '';
   } catch (error) {
@@ -440,8 +409,9 @@ async function savePostDraft() {
     flashMessage('Выберите хотя бы один раздел');
     return;
   }
-  fields.fx = draft.focusX ?? null;
-  fields.fy = draft.focusY ?? null;
+  // точки фокуса больше нет: обложка показывается по центру
+  fields.fx = null;
+  fields.fy = null;
   if (!draft.key) {
     await createPostDoc({ section: sections[0], sections, ...fields });
   } else if (draft.isCustom) {

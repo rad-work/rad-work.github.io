@@ -73,54 +73,6 @@ function selectedSections() {
   return checked.length ? checked : adminState.draft.sections || [];
 }
 
-function previewImageHTML(ref, focusX, focusY) {
-  const url = imageUrl(ref);
-  if (!url) return '<div class="placeholder pic"></div>';
-  const focus = focusX != null ? `style="object-position:${focusX}% ${focusY}%"` : '';
-  return `<img class="pic" src="${escapeHtml(url)}" alt="" ${focus}>`;
-}
-
-/** Как пост будет выглядеть на сайте: в «Главной теме», карточкой в разделах и на своей странице. */
-function postPreviewHTML() {
-  const draft = adminState.draft;
-  const inputValue = id => document.getElementById(id)?.value || '';
-  const title = inputValue('post-title') || draft.title || 'Заголовок новости';
-  const description = inputValue('post-description') || draft.description || '';
-  const sections = selectedSections();
-  const cover = previewImageHTML((draft.photos || [])[0], draft.focusX, draft.focusY);
-  const previews = [];
-  if (sections.includes('hero')) {
-    previews.push(`<div class="preview">
-        <span class="preview-label">Главная тема</span>
-        <div class="preview-hero">${cover}<h3>${escapeHtml(title)}</h3><p>${escapeHtml(description)}</p><span class="btn">Читать</span></div>
-      </div>`);
-  }
-  const cardSections = sections.filter(section => section !== 'hero');
-  if (cardSections.length) {
-    const where = cardSections.map(section => SECTION_TITLES[section]).join(', ');
-    previews.push(`<div class="preview">
-        <span class="preview-label">Карточка · ${where}</span>
-        <div class="card preview-card">${cover}<div class="card-body"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(description)}</p><span class="more-link">Подробнее →</span></div></div>
-      </div>`);
-  }
-  const album = albumHTML(draft.photos || [], title) || '<p class="small-print">Фото не добавлены.</p>';
-  previews.push(`<div class="preview preview-wide">
-      <span class="preview-label">Страница новости</span>
-      <div class="preview-page"><h3>${escapeHtml(title)}</h3>${album}</div>
-    </div>`);
-  return previews.join('');
-}
-
-/** Выбор точки фокуса обложки: клик по фото ставит отметку. */
-function focusPickerHTML() {
-  const draft = adminState.draft;
-  const url = imageUrl((draft.photos || [])[0]);
-  if (!url) return '<p class="small-print">Добавьте фото, чтобы выбрать точку фокуса.</p>';
-  return `<div class="focus-picker"><img src="${escapeHtml(url)}" alt=""><i style="left:${draft.focusX ?? 50}%;top:${draft.focusY ?? 50}%"></i></div>
-    <p class="small-print">Нажмите на главное в кадре. Когда обложка обрезается под карточку или «Главную тему», эта часть останется на виду.</p>
-    <div class="admin-actions" style="justify-content:flex-start"><button type="button" data-action="focus-reset">Сбросить</button></div>`;
-}
-
 /** Фото поста в редакторе: подрезка, удаление и порядок (первое — обложка). */
 function editorPhotosHTML() {
   const photos = adminState.draft.photos || [];
@@ -160,8 +112,6 @@ const repaintPart = (selector, html) => {
   const element = $(selector);
   if (element) element.innerHTML = html();
 };
-const repaintPreview = () => repaintPart('#post-preview', postPreviewHTML);
-const repaintFocusPicker = () => repaintPart('#post-focus', focusPickerHTML);
 const repaintEditorPhotos = () => repaintPart('#post-photos', editorPhotosHTML);
 const repaintEditorFiles = () => repaintPart('#post-files', editorFilesHTML);
 
@@ -189,10 +139,6 @@ function postEditorHTML() {
       <div id="post-files" class="file-list">${editorFilesHTML()}</div>
       <div class="admin-actions" style="justify-content:flex-start"><label class="upload-button">+ Прикрепить файл<input type="file" multiple id="post-file-input" hidden></label></div>
       <p class="admin-hint">Форматы: pdf, docx, xlsx, pptx, zip, csv, txt, изображения, видео mp4/webm и др. Размер до 8 МБ. Другие форматы (doc, xls, rar) сначала упакуйте в zip.</p>
-      <div class="field-label">Точка фокуса обложки</div>
-      <div id="post-focus">${focusPickerHTML()}</div>
-      <div class="field-label">Как это будет выглядеть на сайте</div>
-      <div id="post-preview" class="previews">${postPreviewHTML()}</div>
       <label class="checkbox"><input type="checkbox" id="post-published" ${draft.hidden ? '' : 'checked'}> Показывать на сайте</label>
       <div class="admin-actions" style="justify-content:flex-start"><button class="btn" type="submit">Сохранить</button><button type="button" data-action="draft-cancel">Отмена</button></div>
     </form>`;

@@ -5,8 +5,8 @@
 
 let textReplacements = new Map(); // исходный текст → новый
 
-/* Тексты в этих местах не заменяются: админка, окна, просмотр фото, превью поста */
-const PROTECTED_AREAS = '#admin-panel, .modal, .lightbox, .previews';
+/* Тексты в этих местах не заменяются: админка, окна, просмотр фото */
+const PROTECTED_AREAS = '#admin-panel, .modal, .lightbox';
 const TEXT_TAGS = /^(H1|H2|H3|H4|P|LI|SPAN|A|B|SMALL|BUTTON|LABEL|DIV|STRONG|EM|I)$/;
 
 const normalizeText = text => String(text).replace(/\s+/g, ' ').trim();
