@@ -59,9 +59,7 @@ const SITE = {
   pages: [
     { id: 'home', title: 'Главная' },
     { id: 'plan', title: 'План внутренних коммуникаций' },
-    { id: 'career', title: 'Карьерные треки' },
     { id: 'learning', title: 'Обучение' },
-    { id: 'sport', title: 'Спорт VR' },
   ],
   slides: [
     {

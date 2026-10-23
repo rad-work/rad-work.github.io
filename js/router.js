@@ -25,7 +25,12 @@ const PAGE_RENDERERS = {
   admin: adminPage,
 };
 /* Заголовки вкладки браузера для страниц, которых нет в меню (SITE.pages) */
-const PAGE_TITLES = { 'charity-cal': 'Благотворительность', admin: 'Админ-панель' };
+const PAGE_TITLES = {
+  career: 'Карьерные треки',
+  sport: 'Спорт VR',
+  'charity-cal': 'Благотворительность',
+  admin: 'Админ-панель',
+};
 
 /* Нижнее меню на телефоне: страница, подпись, иконка */
 const TAB_BAR_ITEMS = [
