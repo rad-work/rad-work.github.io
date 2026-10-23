@@ -73,15 +73,15 @@ function selectedSections() {
   return checked.length ? checked : adminState.draft.sections || [];
 }
 
-/** Фото поста в редакторе: подрезка, удаление и порядок (первое — обложка). */
+/** Фото поста в редакторе: подрезка, удаление и порядок — стрелками или перетаскиванием (первое — обложка). */
 function editorPhotosHTML() {
   const photos = adminState.draft.photos || [];
   if (!photos.length) return '<p class="small-print">Фото пока нет.</p>';
   return photos
     .map((ref, index) => {
       const url = imageUrl(ref);
-      return `<div class="photo-item">
-        ${url ? `<img src="${escapeHtml(url)}" alt="">` : '<div class="thumb"></div>'}
+      return `<div class="photo-item" draggable="true" data-photo-index="${index}">
+        ${url ? `<img src="${escapeHtml(url)}" alt="" draggable="false">` : '<div class="thumb"></div>'}
         <small>${index ? 'Фото ' + (index + 1) : 'Обложка'}</small>
         <div class="admin-actions">
           <button type="button" data-action="photo-crop" data-index="${index}">Подрезать</button>
@@ -132,7 +132,7 @@ function postEditorHTML() {
       <textarea id="post-description" rows="2" maxlength="300">${escapeHtml(draft.description || '')}</textarea>
       <label class="field-label" for="post-body">Полный текст (на странице поста)</label>
       <textarea id="post-body" rows="6" maxlength="6000">${escapeHtml(draft.body || '')}</textarea>
-      <div class="field-label">Фото — первое станет обложкой карточки</div>
+      <div class="field-label">Фото — первое станет обложкой карточки; порядок меняется перетаскиванием</div>
       <div id="post-photos" class="photo-list">${editorPhotosHTML()}</div>
       <div class="admin-actions" style="justify-content:flex-start"><label class="upload-button">+ Добавить фото<input type="file" accept="image/*" multiple id="post-photo-input" hidden></label></div>
       <div class="field-label">Файлы к посту (скачиваются со страницы поста)</div>

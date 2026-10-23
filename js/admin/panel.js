@@ -212,8 +212,8 @@ const ADMIN_ACTIONS = {
     adminState.draft.photos.splice(Number(index), 1);
     repaintEditorPhotos();
   },
-  'photo-left': ({ index }) => movePhoto(Number(index), -1),
-  'photo-right': ({ index }) => movePhoto(Number(index), 1),
+  'photo-left': ({ index }) => movePhoto(Number(index), Number(index) - 1),
+  'photo-right': ({ index }) => movePhoto(Number(index), Number(index) + 1),
   'file-remove': ({ index }) => {
     const [removed] = adminState.draft.files.splice(Number(index), 1);
     if (removed) adminState.draft.removedFiles.push(removed); // удалим из базы при сохранении поста
@@ -251,14 +251,59 @@ const ADMIN_ACTIONS = {
   },
 };
 
-/** Меняет фото местами с соседним (step = -1 или 1); первое фото — обложка. */
-function movePhoto(index, step) {
+/** Ставит фото с места from на место to, остальные сдвигаются; первое фото — обложка. */
+function movePhoto(from, to) {
   const photos = adminState.draft.photos;
-  const target = index + step;
-  if (target < 0 || target >= photos.length) return;
-  [photos[index], photos[target]] = [photos[target], photos[index]];
+  if (from === to || to < 0 || to >= photos.length) return;
+  photos.splice(to, 0, ...photos.splice(from, 1));
   repaintEditorPhotos();
 }
+
+/* ----- Порядок фото перетаскиванием: карточку фото бросают на место другой ----- */
+
+let draggedPhotoIndex = null;
+
+/** Карточка фото под указателем (в Firefox событие может прийти от текстового узла). */
+function photoItemAt(event) {
+  const target = event.target instanceof Element ? event.target : event.target.parentElement;
+  return target?.closest('#post-photos .photo-item');
+}
+
+const clearDropTarget = () =>
+  document
+    .querySelectorAll('.photo-item.is-drop-target')
+    .forEach(item => item.classList.remove('is-drop-target'));
+
+document.addEventListener('dragstart', event => {
+  const item = photoItemAt(event);
+  if (!item) return;
+  draggedPhotoIndex = Number(item.dataset.photoIndex);
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', ''); // без данных Firefox не начинает перетаскивание
+  item.classList.add('is-dragging');
+});
+document.addEventListener('dragover', event => {
+  const item = photoItemAt(event);
+  if (!item || draggedPhotoIndex === null) return;
+  event.preventDefault(); // разрешает бросить фото сюда
+  event.dataTransfer.dropEffect = 'move';
+  if (item.classList.contains('is-drop-target')) return;
+  clearDropTarget();
+  if (Number(item.dataset.photoIndex) !== draggedPhotoIndex) item.classList.add('is-drop-target');
+});
+document.addEventListener('drop', event => {
+  const item = photoItemAt(event);
+  if (!item || draggedPhotoIndex === null) return;
+  event.preventDefault();
+  const from = draggedPhotoIndex;
+  draggedPhotoIndex = null; // после перерисовки исходной карточки нет, dragend до документа может не дойти
+  movePhoto(from, Number(item.dataset.photoIndex));
+});
+document.addEventListener('dragend', () => {
+  draggedPhotoIndex = null;
+  clearDropTarget();
+  document.querySelectorAll('.photo-item.is-dragging').forEach(item => item.classList.remove('is-dragging'));
+});
 
 /** Публикует записку (текст можно было поправить в поле) или отклоняет её. */
 async function moderateThanks({ uid, id }, approve) {
