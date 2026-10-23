@@ -2,7 +2,6 @@
 
 const adminState = {
   tab: 'posts', // открытая вкладка
-  postSection: 'all', // фильтр постов по разделу
   draft: null, // пост или опрос (isPoll) в редакторе
   eventDraft: null, // событие в редакторе
   message: '', // сообщение под вкладками
@@ -170,11 +169,10 @@ async function loadInbox() {
 const ADMIN_ACTIONS = {
   /* посты */
   'post-new': () => {
-    const section = ['all', 'surveys'].includes(adminState.postSection) ? 'charity' : adminState.postSection;
     adminState.draft = {
       key: null,
       section: 'charity',
-      sections: [section],
+      sections: ['charity'],
       title: '',
       description: '',
       body: '',
@@ -461,10 +459,6 @@ onClick('[data-admin-tab]', button => {
   adminState.tab = button.dataset.adminTab;
   adminState.draft = null;
   adminState.eventDraft = null;
-  renderAdmin();
-});
-onClick('[data-post-section]', button => {
-  adminState.postSection = button.dataset.postSection;
   renderAdmin();
 });
 onClick('[data-event-category]', button => {

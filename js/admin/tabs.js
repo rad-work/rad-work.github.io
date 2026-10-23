@@ -213,13 +213,7 @@ function postEditorHTML() {
 }
 
 function postsTabHTML() {
-  const filter = adminState.postSection;
-  const rows = adminPostRows().filter(
-    row => row.section !== 'surveys' && (filter === 'all' || row.shownIn.includes(filter)),
-  );
-  const sectionChips = POST_SECTIONS.map(
-    ([id, title]) => `<button data-post-section="${id}" aria-pressed="${filter === id}">${title}</button>`,
-  ).join('');
+  const rows = adminPostRows().filter(row => row.section !== 'surveys');
   const rowHTML = row => {
     const status =
       (row.custom ? ' · новый пост' : row.edited ? ' · изменён' : '') + (row.hidden ? ' · скрыт' : '');
@@ -238,10 +232,7 @@ function postsTabHTML() {
       </div>`;
   };
   return `<p class="admin-hint">Посты показываются на главной странице в выбранном разделе. Новые посты появляются первыми. Встроенные карточки можно изменить или скрыть.</p>
-    <div class="filter-bar">
-      <div class="chips"><button data-post-section="all" aria-pressed="${filter === 'all'}">Все разделы</button>${sectionChips}</div>
-      <button class="btn" data-action="post-new">+ Новый пост</button>
-    </div>
+    <div class="filter-bar"><span></span><button class="btn" data-action="post-new">+ Новый пост</button></div>
     ${adminState.draft ? postEditorHTML() : ''}
     <div>${rows.map(rowHTML).join('')}</div>`;
 }
