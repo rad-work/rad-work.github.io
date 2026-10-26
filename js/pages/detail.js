@@ -46,7 +46,8 @@ function albumHTML(refs, alt) {
     const images = photos
       .slice(next, (next += size))
       .map(
-        ref => `<img src="${escapeHtml(imageUrl(ref))}" alt="${escapeHtml(alt || '')}" style="flex:1 1 0">`,
+        ref =>
+          `<img src="${escapeHtml(imageUrl(ref))}" alt="${escapeHtml(alt || '')}" style="flex:1 1 0" loading="lazy" decoding="async">`,
       );
     return `<div class="album-row">${images.join('')}</div>`;
   });
@@ -58,7 +59,7 @@ document.addEventListener(
   'load',
   event => {
     const image = event.target;
-    if (image?.matches?.('.album img') && image.naturalHeight) {
+    if (image.matches && image.matches('.album img') && image.naturalHeight) {
       image.style.flexGrow = (image.naturalWidth / image.naturalHeight).toFixed(3);
       image.style.aspectRatio = image.naturalWidth + '/' + image.naturalHeight;
     }
@@ -76,5 +77,6 @@ onClick('.album img', image => {
 });
 
 document.addEventListener('keydown', event => {
-  if (event.key === 'Escape') document.querySelector('.lightbox')?.remove();
+  const lightbox = document.querySelector('.lightbox');
+  if (event.key === 'Escape' && lightbox) lightbox.remove();
 });

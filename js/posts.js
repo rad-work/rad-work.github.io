@@ -56,19 +56,20 @@ function postsInSection(section) {
   const added = Object.values(docs)
     .filter(doc => doc.custom && (doc.section === section || (doc.sections || []).includes(section)))
     .sort((a, b) => (b.ts || 0) - (a.ts || 0))
-    .map(doc => ({
-      ...pickPostFields(doc),
-      id: doc.id,
-      key: doc.id,
-      custom: true,
-      section: doc.section || section,
-    }));
+    .map(doc =>
+      Object.assign(pickPostFields(doc), {
+        id: doc.id,
+        key: doc.id,
+        custom: true,
+        section: doc.section || section,
+      }),
+    );
 
   const builtin = builtinPosts(section).map(post => {
     const key = section + '__' + post.id;
     const override = docs[key];
     const changes = override ? pickPostFields(override) : {};
-    return { ...post, ...changes, id: post.id, key, custom: false, edited: !!override, section };
+    return Object.assign({}, post, changes, { id: post.id, key, custom: false, edited: !!override, section });
   });
 
   const sharedHere = [];
@@ -78,16 +79,16 @@ function postsInSection(section) {
       const key = otherSection + '__' + post.id;
       const override = docs[key];
       if (override && (override.also || []).includes(section)) {
-        sharedHere.push({
-          ...post,
-          ...pickPostFields(override),
-          id: post.id,
-          key,
-          custom: false,
-          edited: true,
-          section: otherSection,
-          shared: true,
-        });
+        sharedHere.push(
+          Object.assign({}, post, pickPostFields(override), {
+            id: post.id,
+            key,
+            custom: false,
+            edited: true,
+            section: otherSection,
+            shared: true,
+          }),
+        );
       }
     });
   });

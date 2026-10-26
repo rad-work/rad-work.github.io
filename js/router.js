@@ -151,8 +151,12 @@ function route(scroll) {
   if (['plan', 'learning', 'charity-cal'].includes(page)) showCalendarMonth(page);
   drawThanks();
 
-  if (anchor) requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView());
-  else if (scroll !== false) window.scrollTo(0, 0);
+  if (anchor) {
+    requestAnimationFrame(() => {
+      const target = document.getElementById(anchor);
+      if (target) target.scrollIntoView();
+    });
+  } else if (scroll !== false) window.scrollTo(0, 0);
 }
 
 /* Ссылки с data-route переключают страницу; клик по ссылке на текущую страницу перерисовывает её */

@@ -63,7 +63,12 @@ function renderAdmin() {
 /** Пользователь печатает в поле админки — тогда панель не перерисовываем, чтобы не сбить ввод. */
 function isTypingInAdmin() {
   const active = document.activeElement;
-  return !!(active?.closest?.('#admin-panel') && /INPUT|TEXTAREA|SELECT/.test(active.tagName));
+  return !!(
+    active &&
+    active.closest &&
+    active.closest('#admin-panel') &&
+    /INPUT|TEXTAREA|SELECT/.test(active.tagName)
+  );
 }
 
 let flashTimer = null;
@@ -86,7 +91,7 @@ function flashMessage(message) {
 
 /** Записывает документ поста целиком: прежние поля плюс новые. */
 async function savePostDoc(key, fields) {
-  const doc = { ...((store.posts || {})[key] || {}), ...fields };
+  const doc = Object.assign({}, (store.posts || {})[key], fields);
   delete doc.id;
   await db.collection('posts').doc(key).set(doc);
 }
@@ -96,7 +101,7 @@ async function createPostDoc(fields) {
   await db
     .collection('posts')
     .doc(id)
-    .set({ ...fields, custom: true, ts: Date.now() });
+    .set(Object.assign({}, fields, { custom: true, ts: Date.now() }));
 }
 
 /** Кладёт фото в коллекцию photos и возвращает ссылку на него для поста («ph:<id>»). */
@@ -129,7 +134,7 @@ async function loadInbox() {
     const items = [];
     for (const user of users.docs) {
       const userItems = await inboxItemsOf(user.id).get();
-      userItems.docs.forEach(doc => items.push({ ...doc.data(), id: doc.id, uid: user.id }));
+      userItems.docs.forEach(doc => items.push(Object.assign(doc.data(), { id: doc.id, uid: user.id })));
     }
     items.sort((a, b) => (b.ts || 0) - (a.ts || 0));
     store.inbox = items;
@@ -266,7 +271,7 @@ let draggedPhotoIndex = null;
 /** Карточка фото под указателем (в Firefox событие может прийти от текстового узла). */
 function photoItemAt(event) {
   const target = event.target instanceof Element ? event.target : event.target.parentElement;
-  return target?.closest('#post-photos .photo-item');
+  return target && target.closest('#post-photos .photo-item');
 }
 
 const clearDropTarget = () =>
@@ -331,7 +336,7 @@ async function runAdminAction(button) {
 
 /* Отмеченные разделы запоминаются в черновике, чтобы пережить перерисовку редактора */
 document.addEventListener('change', event => {
-  if (event.target.closest?.('#post-sections') && adminState.draft) {
+  if (event.target.closest && event.target.closest('#post-sections') && adminState.draft) {
     adminState.draft.sections = selectedSections();
   }
 });
@@ -351,7 +356,7 @@ onClick('[data-action]', runAdminAction);
 
 document.addEventListener('change', async event => {
   const input = event.target;
-  if (!input.matches?.('input[type=file]')) return;
+  if (!input.matches || !input.matches('input[type=file]')) return;
   if (!input.files || !input.files[0]) return;
   if (input.id === 'post-file-input') {
     await attachFiles(input);
@@ -385,7 +390,7 @@ async function attachFiles(input) {
       repaintEditorFiles();
       flashMessage('Файл прикреплён: ' + file.name);
     } catch (error) {
-      const reason = String(error?.message || '');
+      const reason = String((error && error.message) || '');
       if (reason.startsWith('ext:'))
         flashMessage('Формат .' + reason.slice(4) + ' не подходит для скачивания. Упакуйте файл в zip.');
       else if (reason === 'size') flashMessage('Файл больше 8 МБ.');
@@ -404,7 +409,7 @@ document.addEventListener('submit', async event => {
   if (kind === 'login') return submitLogin();
   if (!db) return;
   try {
-    await ADMIN_FORM_SAVERS[kind]?.();
+    if (ADMIN_FORM_SAVERS[kind]) await ADMIN_FORM_SAVERS[kind]();
   } catch (error) {
     flashMessage('Не удалось сохранить. Проверьте доступ и попробуйте ещё раз.');
   }
@@ -458,13 +463,13 @@ async function savePostDraft() {
   fields.fx = null;
   fields.fy = null;
   if (!draft.key) {
-    await createPostDoc({ section: sections[0], sections, ...fields });
+    await createPostDoc(Object.assign({ section: sections[0], sections }, fields));
   } else if (draft.isCustom) {
-    await savePostDoc(draft.key, { section: sections[0], sections, ...fields });
+    await savePostDoc(draft.key, Object.assign({ section: sections[0], sections }, fields));
   } else {
     // встроенный пост живёт в своём разделе, а в остальных выбранных показывается через also
     const also = sections.filter(section => section !== draft.originalSection);
-    await savePostDoc(draft.key, { section: draft.originalSection, also, ...fields });
+    await savePostDoc(draft.key, Object.assign({ section: draft.originalSection, also }, fields));
   }
   for (const file of draft.removedFiles || []) await deleteUploadedFile(file);
   adminState.draft = null;

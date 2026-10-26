@@ -67,31 +67,31 @@ function addPlanEvents() {
   PLAN_2027.weeks
     .filter(week => /^Корп/.test(week.s))
     .forEach(week => {
-      SITE.events.push({
-        id: 'c' + week.n,
-        ...planWeekDates(week.d),
-        t: capitalize(week.a.replace(/\*/g, '')),
-        cat: 'corp',
-        d: corporateEventText(week.a),
-        sc: ['plan', 'home'],
-        back: 'plan',
-        soft: 1,
-      });
+      SITE.events.push(
+        Object.assign({ id: 'c' + week.n }, planWeekDates(week.d), {
+          t: capitalize(week.a.replace(/\*/g, '')),
+          cat: 'corp',
+          d: corporateEventText(week.a),
+          sc: ['plan', 'home'],
+          back: 'plan',
+          soft: 1,
+        }),
+      );
     });
 
   PLAN_2027.weeks
     .filter(week => week.s === 'Спорт')
     .forEach(week => {
-      SITE.events.push({
-        id: 's' + week.n,
-        ...planWeekDates(week.d),
-        t: capitalize(week.a),
-        cat: 'sport',
-        d: sportEventText(week.a),
-        sc: ['sport', 'plan', 'home'],
-        back: 'sport',
-        soft: 1,
-      });
+      SITE.events.push(
+        Object.assign({ id: 's' + week.n }, planWeekDates(week.d), {
+          t: capitalize(week.a),
+          cat: 'sport',
+          d: sportEventText(week.a),
+          sc: ['sport', 'plan', 'home'],
+          back: 'sport',
+          soft: 1,
+        }),
+      );
     });
 
   addPlanCharityEvents();
@@ -102,16 +102,16 @@ function addPlanEvents() {
 function addPlanCharityEvents() {
   const howOften = pattern => (PLAN_2027.char.find(row => pattern.test(row.t)) || {}).w;
   const add = (id, weekNumber, title, text) =>
-    SITE.events.push({
-      id,
-      ...planWeekDates(PLAN_2027.weeks.find(week => week.n === weekNumber).d),
-      t: title,
-      cat: 'charity',
-      d: text + ' Точные даты и место будут объявлены дополнительно.',
-      sc: ['plan', 'charity', 'home'],
-      back: 'charity-cal',
-      soft: 1,
-    });
+    SITE.events.push(
+      Object.assign({ id }, planWeekDates(PLAN_2027.weeks.find(week => week.n === weekNumber).d), {
+        t: title,
+        cat: 'charity',
+        d: text + ' Точные даты и место будут объявлены дополнительно.',
+        sc: ['plan', 'charity', 'home'],
+        back: 'charity-cal',
+        soft: 1,
+      }),
+    );
 
   /* id события — префикс и порядковый номер акции в году */
   const quarterlyActions = [
@@ -223,7 +223,7 @@ function add2026Events() {
       back: 'charity-cal',
     },
   ];
-  yearEndEvents.forEach(event => SITE.events.push({ ...event, soft: 1 }));
+  yearEndEvents.forEach(event => SITE.events.push(Object.assign({}, event, { soft: 1 })));
 }
 
 /* ----- Итоговый список событий ----- */
@@ -256,17 +256,22 @@ function allEvents() {
   const docs = store.events || {};
   const builtin = SITE.events.map(event => {
     const override = docs['ev__' + event.id];
-    return override ? { ...event, ...pickEventFields(override), id: event.id, edited: true } : { ...event };
+    return override
+      ? Object.assign({}, event, pickEventFields(override), { id: event.id, edited: true })
+      : Object.assign({}, event);
   });
   /* id нового события — id его документа в базе («ec…») */
   const added = Object.entries(docs)
     .filter(([, doc]) => doc.custom)
-    .map(([docId, doc]) => ({ ...pickEventFields(doc), sc: doc.sc || ['plan'], id: docId, custom: true }));
+    .map(([docId, doc]) =>
+      Object.assign(pickEventFields(doc), { sc: doc.sc || ['plan'], id: docId, custom: true }),
+    );
   return [...builtin, ...added]
-    .map(event => ({
-      ...event,
-      back: event.back && !event.custom ? event.back : defaultEventBackRoute(event),
-    }))
+    .map(event =>
+      Object.assign({}, event, {
+        back: event.back && !event.custom ? event.back : defaultEventBackRoute(event),
+      }),
+    )
     .filter(event => event.date)
     .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 }

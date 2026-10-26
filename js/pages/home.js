@@ -61,7 +61,7 @@ function drawHeroSlide() {
   $('#hero-text').textContent = slide.d || '';
   $('#hero-link').href = '#a-' + slide.id;
   $('#hero-link').dataset.route = 'a-' + slide.id;
-  $('#hero-photo').innerHTML = pictureHTML(slide.img, slide.t, slide.fx, slide.fy);
+  $('#hero-photo').innerHTML = pictureHTML(slide.img, slide.t, slide.fx, slide.fy, true);
   drawSlideDots();
 }
 
@@ -245,7 +245,11 @@ document.addEventListener(
   'scroll',
   event => {
     const grid = event.target;
-    if (grid?.classList?.contains('card-grid') && grid.parentNode.classList.contains('carousel')) {
+    if (
+      grid.classList &&
+      grid.classList.contains('card-grid') &&
+      grid.parentNode.classList.contains('carousel')
+    ) {
       updateCarouselButtons(grid.parentNode);
     }
   },

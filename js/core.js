@@ -59,12 +59,13 @@ function imageUrl(ref) {
   return IMAGES[ref];
 }
 
-/** Фото с точкой фокуса (focusX и focusY — в процентах) или пустое место под фото. */
-function pictureHTML(ref, alt, focusX, focusY) {
+/** Фото с точкой фокуса (focusX и focusY — в процентах) или пустое место под фото. eager — грузить сразу (первый экран). */
+function pictureHTML(ref, alt, focusX, focusY, eager) {
   const url = imageUrl(ref);
   if (!url) return '<div class="placeholder pic" aria-hidden="true"></div>';
   const focus = focusX != null ? ` style="object-position:${focusX}% ${focusY}%"` : '';
-  return `<img class="pic" src="${url}" alt="${escapeHtml(alt || '')}"${focus}>`;
+  const loading = eager ? '' : ' loading="lazy"'; // фото ниже первого экрана грузятся, когда до них долистают
+  return `<img class="pic" src="${url}" alt="${escapeHtml(alt || '')}"${focus}${loading} decoding="async">`;
 }
 
 /** Атрибуты для внешней ссылки (http…): открывать в новой вкладке. */
@@ -91,7 +92,7 @@ function showToast(message) {
 /** Обработчик кликов по элементам, подходящим под селектор (в том числе добавленным позже). */
 function onClick(selector, handler) {
   document.addEventListener('click', event => {
-    const target = event.target.closest?.(selector);
+    const target = event.target.closest && event.target.closest(selector);
     if (target) handler(target, event);
   });
 }

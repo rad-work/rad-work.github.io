@@ -43,7 +43,7 @@ function adminPostRows() {
       if (post.shared) return;
       const row = rowsByKey[post.key];
       if (!row) {
-        rowsByKey[post.key] = { ...post, shownIn: [section] };
+        rowsByKey[post.key] = Object.assign({}, post, { shownIn: [section] });
         rows.push(rowsByKey[post.key]);
       } else if (!row.shownIn.includes(section)) {
         row.shownIn.push(section);

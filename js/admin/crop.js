@@ -107,9 +107,15 @@ function openCropDialog(source, onDone) {
   image.src = source;
 
   area.addEventListener('pointerdown', event => {
-    const handle = event.target.closest('[data-handle]')?.dataset.handle;
+    const handleElement = event.target.closest('[data-handle]');
+    const handle = handleElement && handleElement.dataset.handle;
     if (!handle && !box.contains(event.target)) return;
-    drag = { handle: handle || 'move', pointerX: event.clientX, pointerY: event.clientY, crop: { ...crop } };
+    drag = {
+      handle: handle || 'move',
+      pointerX: event.clientX,
+      pointerY: event.clientY,
+      crop: Object.assign({}, crop),
+    };
     area.setPointerCapture(event.pointerId);
     event.preventDefault();
   });

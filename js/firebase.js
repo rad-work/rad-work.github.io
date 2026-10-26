@@ -139,7 +139,9 @@ function watchCollections() {
   subscribe(
     () => db.collection('posts'),
     snapshot => {
-      store.posts = Object.fromEntries(snapshot.docs.map(doc => [doc.id, { ...doc.data(), id: doc.id }]));
+      store.posts = Object.fromEntries(
+        snapshot.docs.map(doc => [doc.id, Object.assign(doc.data(), { id: doc.id })]),
+      );
       repaintPosts();
     },
   );
@@ -148,7 +150,7 @@ function watchCollections() {
   subscribe(
     () => db.collection('thanks').orderBy('ts', 'desc').limit(60),
     snapshot => {
-      store.thanks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+      store.thanks = snapshot.docs.map(doc => Object.assign(doc.data(), { id: doc.id }));
       drawThanks();
       if ($('#admin-panel') && !adminState.draft && !isTypingInAdmin()) renderAdmin();
     },
