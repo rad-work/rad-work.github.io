@@ -253,7 +253,7 @@ function drawThanksAndIdeas() {
             return `<li><p>${escapeHtml(idea.text)}</p><small>${escapeHtml(idea.name || 'Сотрудник')}${date}</small></li>`;
           })
           .join('')
-      : '<li class="empty">Комментариев пока нет — оставьте первый.</li>';
+      : '';
   }
 }
 

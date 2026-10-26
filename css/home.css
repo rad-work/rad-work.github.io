@@ -436,6 +436,10 @@
   flex-direction: column;
   border-top: 1px solid rgba(17, 164, 195, 0.3);
 }
+/* пока комментариев нет, правой колонки не видно */
+.idea-comments:empty {
+  display: none;
+}
 .idea-comments li {
   padding: 0.875rem 0;
   border-bottom: 1px solid rgba(17, 164, 195, 0.3);
