@@ -1,5 +1,6 @@
 /* ===== Файлы к постам =====
  * Файл хранится в базе частями: документ files/<id> с описанием и files/<id>_0, <id>_1, … с кусками base64.
+ * Файл из папки сайта (у файла есть поле src) скачивается прямо оттуда.
  */
 
 // prettier-ignore
@@ -25,6 +26,11 @@ function formatFileSize(bytes) {
 
 /** Собирает файл из частей в базе. */
 async function loadFileBlob(file) {
+  if (file.src) {
+    const response = await fetch(file.src);
+    if (!response.ok) throw new Error('src');
+    return response.blob();
+  }
   let base64 = '';
   if (file.emb) {
     base64 = EMBEDDED_FILES[file.emb] || '';
@@ -108,7 +114,7 @@ async function uploadFile(file) {
 
 /** Удаляет загруженный файл из базы (ошибки игнорируем — файл просто останется). */
 async function deleteUploadedFile(file) {
-  if (!file || file.emb || !db) return;
+  if (!file || file.emb || file.src || !db) return;
   try {
     for (let i = 0; i < (file.n || 1); i++)
       await db
