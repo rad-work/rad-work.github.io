@@ -135,7 +135,7 @@ function legendHTML(categories) {
     const category = EVENT_CATEGORIES[key];
     return `<span><i style="background:${TONE_COLORS[category.tone]}"></i>${category.label}</span>`;
   });
-  const today = '<span><i style="box-shadow:inset 0 0 0 0.5px #E5484D"></i>Сегодня</span>';
+  const today = '<span><i style="box-shadow:inset 0 0 0 1px var(--color-red)"></i>Сегодня</span>';
   return `<div class="legend">${items.join('')}${today}</div>`;
 }
 
