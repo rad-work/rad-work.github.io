@@ -1,17 +1,7 @@
-/* ===== Внутренние страницы: план, благотворительность, обучение, карьера, событие ===== */
+/* ===== Внутренние страницы: план, благотворительность, обучение, карьера ===== */
 
 const backLinkHTML = (target, label) =>
   `<a class="back-link" href="#${target}" data-route="${target}">← ${label || 'На главную'}</a>`;
-
-/* Подписи ссылки «Назад» на странице события — по странице, откуда пришли */
-const BACK_LABELS = {
-  plan: 'К плану коммуникаций',
-  learning: 'К обучению',
-  sport: 'К Спорт VR',
-  'charity-cal': 'К благотворительности',
-  home: 'На главную',
-  events: 'Назад',
-};
 
 const PLAN_FILTERS = [
   ['all', 'Все'],
@@ -101,39 +91,5 @@ function careerPage() {
     `<h1 class="page-title">Карьерные треки</h1>
     <div class="tracks">${tracks.join('')}</div>
     <p style="margin:28px 0 0"><a class="text-link" href="#${linkRoute}" data-route="${linkRoute}">${linkLabel} →</a></p>`
-  );
-}
-
-/** Страница события #e-<id>; previousPage — откуда пришли (для ссылки «Назад»). */
-function eventPage(eventId, previousPage) {
-  const event = eventsById[eventId];
-  let backRoute = event.back === 'home' ? 'events' : event.back;
-  if (previousPage && BACK_LABELS[previousPage] && previousPage !== 'events') backRoute = previousPage;
-  const start = parseIsoDate(event.date);
-  const end = event.end && event.end !== event.date ? parseIsoDate(event.end) : null;
-  const dates = end
-    ? `${start.getDate()}–${end.getDate()} ${MONTH_NAMES_GENITIVE[end.getMonth()]} ${end.getFullYear()}`
-    : `${start.getDate()} ${MONTH_NAMES_GENITIVE[start.getMonth()]} ${start.getFullYear()}`;
-  const place = event.place ? `<div><small>Место</small><b>${escapeHtml(event.place)}</b></div>` : '';
-  const meta =
-    event.cat === 'prof'
-      ? ''
-      : `<div class="event-meta">
-          <div><small>Дата</small><b>${dates}</b></div>
-          <div><small>Время</small><b>${event.time || 'Уточняется'}</b></div>
-          ${place}
-        </div>`;
-  const plannedNote = event.soft ? '<p class="event-note">Плановая дата: требует подтверждения.</p>' : '';
-  return (
-    backLinkHTML(backRoute, BACK_LABELS[backRoute]) +
-    `<h1 class="page-title" style="font-size:clamp(2rem,5vw,3.6rem);margin-bottom:1.75rem">${escapeHtml(event.t)}</h1>
-    <div class="event-page">
-      <div class="placeholder" aria-hidden="true"></div>
-      <div>
-        ${meta}
-        <p class="event-text">${escapeHtml(event.d)}</p>
-        ${plannedNote}
-      </div>
-    </div>`
   );
 }

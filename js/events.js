@@ -59,7 +59,6 @@ function addPlanEvents() {
       sub: holiday.c,
       d: holiday.x,
       sc: ['plan', 'home'],
-      back: 'plan',
       soft: 1,
     });
   });
@@ -73,7 +72,6 @@ function addPlanEvents() {
           cat: 'corp',
           d: corporateEventText(week.a),
           sc: ['plan', 'home'],
-          back: 'plan',
           soft: 1,
         }),
       );
@@ -88,7 +86,6 @@ function addPlanEvents() {
           cat: 'sport',
           d: sportEventText(week.a),
           sc: ['sport', 'plan', 'home'],
-          back: 'sport',
           soft: 1,
         }),
       );
@@ -108,7 +105,6 @@ function addPlanCharityEvents() {
         cat: 'charity',
         d: text + ' Точные даты и место будут объявлены дополнительно.',
         sc: ['plan', 'charity', 'home'],
-        back: 'charity-cal',
         soft: 1,
       }),
     );
@@ -166,7 +162,6 @@ function add2026Events() {
       sub: holiday.c,
       d: holiday.x,
       sc: ['plan', 'home'],
-      back: 'plan',
       soft: 1,
     });
   });
@@ -180,7 +175,6 @@ function add2026Events() {
       cat: 'corp',
       d: corporateEventText('новый год'),
       sc: ['plan', 'home'],
-      back: 'plan',
     },
     {
       id: 'c26b',
@@ -190,7 +184,6 @@ function add2026Events() {
       cat: 'corp',
       d: corporateEventText('новогодние'),
       sc: ['plan', 'home'],
-      back: 'plan',
     },
     {
       id: 'c26c',
@@ -200,7 +193,6 @@ function add2026Events() {
       cat: 'corp',
       d: corporateEventText('новый год'),
       sc: ['plan', 'home'],
-      back: 'plan',
     },
     {
       id: 's26',
@@ -210,7 +202,6 @@ function add2026Events() {
       cat: 'sport',
       d: sportEventText('итоги'),
       sc: ['sport', 'plan', 'home'],
-      back: 'sport',
     },
     {
       id: 'ch26',
@@ -220,7 +211,6 @@ function add2026Events() {
       cat: 'charity',
       d: 'Новогодняя акция «Стань Дедом Морозом»: сбор подарков по списку желаний детей. Точные даты сбора будут опубликованы дополнительно.',
       sc: ['plan', 'charity', 'home'],
-      back: 'charity-cal',
     },
   ];
   yearEndEvents.forEach(event => SITE.events.push(Object.assign({}, event, { soft: 1 })));
@@ -229,7 +219,6 @@ function add2026Events() {
 /* ----- Итоговый список событий ----- */
 
 let visibleEvents = []; // все нескрытые события по дате
-let eventsById = {};
 
 const EVENT_FIELDS = ['t', 'date', 'end', 'cat', 'time', 'place', 'd', 'sc', 'soft', 'hidden'];
 
@@ -240,15 +229,6 @@ function pickEventFields(doc) {
     if (doc[name] !== undefined) fields[name] = doc[name];
   });
   return fields;
-}
-
-/** Куда ведёт «Назад» со страницы события, если это не задано: по первому календарю события. */
-function defaultEventBackRoute(event) {
-  const firstScope = event.sc && event.sc[0];
-  if (firstScope === 'charity') return 'charity-cal';
-  if (firstScope === 'sport') return 'sport';
-  if (firstScope === 'learn') return 'learning';
-  return 'plan';
 }
 
 /** Встроенные события с правками из базы и новые события из базы — по дате, включая скрытые. */
@@ -267,19 +247,12 @@ function allEvents() {
       Object.assign(pickEventFields(doc), { sc: doc.sc || ['plan'], id: docId, custom: true }),
     );
   return [...builtin, ...added]
-    .map(event =>
-      Object.assign({}, event, {
-        back: event.back && !event.custom ? event.back : defaultEventBackRoute(event),
-      }),
-    )
     .filter(event => event.date)
     .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 }
 
 function rebuildEvents() {
   visibleEvents = allEvents().filter(event => !event.hidden);
-  eventsById = {};
-  visibleEvents.forEach(event => (eventsById[event.id] = event));
 }
 
 /** События одного календаря; в плане коммуникаций — с учётом выбранного фильтра. */

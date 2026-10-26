@@ -1,6 +1,5 @@
 /* ===== Календари: сетка месяца, списки событий, переключение месяцев ===== */
 
-let selectedDay = null; // выбранный день «ГГГГ-ММ-ДД» или null
 let planFilter = 'all'; // фильтр по типу событий на странице плана
 const shownMonth = { year: new Date().getFullYear(), month: new Date().getMonth() }; // первый показанный месяц
 
@@ -13,7 +12,7 @@ const TONE_COLORS = {
   green: 'var(--color-green-tint)',
 };
 
-/** Сетка месяца: дни с событиями выделены цветом и нажимаются. */
+/** Сетка месяца: дни с событиями выделены цветом. */
 function monthGridHTML(year, month, events) {
   const daysBefore = (new Date(year, month, 1).getDay() + 6) % 7; // дни прошлого месяца до первого понедельника
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -31,9 +30,7 @@ function monthGridHTML(year, month, events) {
       continue;
     }
     const main = dayEvents.slice().sort((a, b) => CATEGORY_PRIORITY[a.cat] - CATEGORY_PRIORITY[b.cat])[0];
-    const classes = `has-events tone-${EVENT_CATEGORIES[main.cat].tone}${todayClass}${selectedDay === date ? ' is-selected' : ''}`;
-    const label = `${day} ${MONTH_NAMES_GENITIVE[month]}: ${escapeHtml(main.t)}`;
-    html += `<i class="${classes}" data-day="${date}" role="button" tabindex="0" aria-label="${label}">${day}</i>`;
+    html += `<i class="has-events tone-${EVENT_CATEGORIES[main.cat].tone}${todayClass}">${day}</i>`;
   }
   const daysAfter = (7 - ((daysBefore + daysInMonth) % 7)) % 7;
   for (let day = 1; day <= daysAfter; day++) html += `<i class="other-month">${day}</i>`;
@@ -51,12 +48,11 @@ function eventRowHTML(event) {
       ? `${MONTH_NAMES_SHORT[start.getMonth()]}–${MONTH_NAMES_SHORT[end.getMonth()]}`
       : MONTH_NAMES_SHORT[start.getMonth()];
   const subtitle = event.time ? `${event.time} · ${event.place}` : event.sub || category.singular;
-  const selected = selectedDay === event.date ? 'is-selected' : '';
   return `<li>
-      <a class="event-row tone-${category.tone} ${selected}" href="#e-${event.id}" data-route="e-${event.id}">
+      <div class="event-row tone-${category.tone}">
         <div class="event-date">${days}<small>${months}</small></div>
         <div><h3>${escapeHtml(event.t)}</h3><p>${escapeHtml(subtitle)}</p></div>
-      </a>
+      </div>
     </li>`;
 }
 
@@ -107,12 +103,7 @@ function drawPageCalendar(box) {
   const columnHTML = (columnYear, columnMonth) => {
     const from = new Date(columnYear, columnMonth, 1);
     const to = new Date(columnYear, columnMonth + 1, 0);
-    let columnEvents = events.filter(event => eventOverlaps(event, from, to));
-    if (selectedDay) {
-      columnEvents = columnEvents.filter(event =>
-        eventOverlaps(event, parseIsoDate(selectedDay), parseIsoDate(selectedDay)),
-      );
-    }
+    const columnEvents = events.filter(event => eventOverlaps(event, from, to));
     const content = columnEvents.length
       ? eventListHTML(columnEvents, true)
       : '<p class="empty">Событий нет</p>';
@@ -160,10 +151,10 @@ function showCalendarMonth(page) {
   drawCalendars();
 }
 
-/** После обновления событий в базе: перерисовать открытую страницу события или календари. */
+/** После обновления событий в базе: перерисовать календари. */
 function refreshAfterEventsChange() {
   if ($('#admin-panel')) return;
-  if (/^#(e-|charity-cal|plan|learning)/.test(location.hash)) route(false);
+  if (/^#(charity-cal|plan|learning)/.test(location.hash)) route(false);
   else drawCalendars(); // в том числе календарь главной
 }
 
@@ -171,7 +162,6 @@ function refreshAfterEventsChange() {
 
 onClick('[data-plan-filter]', button => {
   planFilter = button.dataset.planFilter;
-  selectedDay = null;
   document
     .querySelectorAll('[data-plan-filter]')
     .forEach(other => other.setAttribute('aria-pressed', other === button));
@@ -188,7 +178,6 @@ onClick('[data-month-step]', button => {
     shownMonth.month = 0;
     shownMonth.year++;
   }
-  selectedDay = null;
   drawCalendars();
 });
 
@@ -205,30 +194,5 @@ onClick('[data-jump-calendar]', button => {
   const date = parseIsoDate(next.date);
   shownMonth.year = date.getFullYear();
   shownMonth.month = date.getMonth();
-  selectedDay = null;
   drawCalendars();
-});
-
-/* Клик по дню: на внутренней странице единственное событие дня открывается сразу, иначе день выбирается */
-onClick('[data-day]', cell => {
-  const day = cell.dataset.day;
-  const calendar = cell.closest('[data-calendar]');
-  const scope = calendar ? calendar.dataset.calendar : 'home';
-  const dayEvents = eventsForCalendar(scope).filter(event =>
-    eventOverlaps(event, parseIsoDate(day), parseIsoDate(day)),
-  );
-  if (dayEvents.length === 1 && calendar) {
-    location.hash = 'e-' + dayEvents[0].id;
-    return;
-  }
-  selectedDay = selectedDay === day ? null : day;
-  drawCalendars();
-});
-
-/* Дни с событиями нажимаются и с клавиатуры */
-document.addEventListener('keydown', event => {
-  if ((event.key === 'Enter' || event.key === ' ') && event.target.dataset && event.target.dataset.day) {
-    event.preventDefault();
-    event.target.click();
-  }
 });

@@ -1,5 +1,5 @@
 /* ===== Навигация по адресу после «#» =====
- *   #home, #plan, … — страницы;  #a-<id> — страница поста;  #e-<id> — страница события;
+ *   #home, #plan, … — страницы;  #a-<id> — страница поста;
  *   #events, #charity, … — разделы главной (страница прокручивается к ним).
  */
 
@@ -51,8 +51,6 @@ const TAB_BAR_ITEMS = [
   ],
 ];
 
-let currentPage = null; // последняя открытая страница (не событие) — для ссылки «Назад» со страницы события
-
 const currentAttr = isCurrent => (isCurrent ? 'aria-current="page"' : '');
 
 function renderNav(current) {
@@ -92,22 +90,16 @@ function renderUsefulLinks() {
     `<h2>${SITE.wall.t}</h2><div class="links">${SITE.wall.links.map(usefulLinkHTML).join('')}</div>`;
 }
 
-/** Какой пункт меню подсветить: для поста — главную, для события — страницу, откуда пришли. */
-function navigationPageFor(page, previousPage, eventId) {
+/** Какой пункт меню подсветить: для поста — главную. */
+function navigationPageFor(page) {
   if (page === 'post') return 'home';
-  if (page === 'event') {
-    if (previousPage && BACK_LABELS[previousPage] && previousPage !== 'events') return previousPage;
-    const back = eventsById[eventId].back;
-    return back === 'home' ? 'home' : back;
-  }
   if (page === 'charity-cal') return 'plan';
   return page;
 }
 
-function pageTitle(page, post, eventId) {
+function pageTitle(page, post) {
   if (page === 'home') return 'VR РИТМ';
   if (page === 'post') return post.t + ' · VR РИТМ';
-  if (page === 'event') return eventsById[eventId].t + ' · VR РИТМ';
   return (PAGE_TITLES[page] || SITE.pages.find(item => item.id === page).title) + ' · VR РИТМ';
 }
 
@@ -117,29 +109,19 @@ function route(scroll) {
   const postData = hash.startsWith('a-') ? findPostPage(hash.slice(2)) : null;
   let page = 'home';
   let anchor = null;
-  let eventId = null;
   if (PAGE_ROUTES.includes(hash)) page = hash;
   else if (postData) page = 'post';
-  else if (hash.startsWith('e-') && eventsById[hash.slice(2)]) {
-    page = 'event';
-    eventId = hash.slice(2);
-  } else if (HOME_ANCHORS.includes(hash)) anchor = hash;
+  else if (HOME_ANCHORS.includes(hash)) anchor = hash;
 
-  selectedDay = null;
-  const previousPage = currentPage;
-  let content;
-  if (page === 'post') content = postPage(postData);
-  else if (page === 'event') content = eventPage(eventId, previousPage);
-  else content = PAGE_RENDERERS[page]();
+  const content = page === 'post' ? postPage(postData) : PAGE_RENDERERS[page]();
   $('#view').innerHTML = `<div class="fade-in">${content}</div>`;
   document.body.classList.toggle('is-sport-page', page === 'sport');
-  if (page !== 'event') currentPage = page;
 
-  const navigationPage = navigationPageFor(page, previousPage, eventId);
+  const navigationPage = navigationPageFor(page);
   renderNav(navigationPage);
   renderTabBar(navigationPage);
   renderUsefulLinks();
-  document.title = pageTitle(page, postData, eventId);
+  document.title = pageTitle(page, postData);
 
   clearInterval(slideTimer);
   if (page === 'admin') {
