@@ -60,10 +60,6 @@ function sportPage() {
     `<div class="sport-media" aria-hidden="true"></div>
     <h1 class="sport-title">Спорт VR</h1>
     <p class="lede">${sport.lede}</p>
-    <section id="sport-calendar">
-      <div class="section-head"><h2>Спортивный год 2027</h2></div>
-      ${pageCalendarHTML('sport', '<span></span>', ['sport'])}
-    </section>
     <section id="sport-fitness">
       <div class="section-head"><h2>${sport.fitness.h}</h2></div>
       <div class="info-grid three-columns">${fitnessCards.join('')}${PLAN_2027.sport2.slice(1).map(soonCardHTML).join('')}</div>

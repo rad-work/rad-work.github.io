@@ -6,7 +6,6 @@ const POST_SECTIONS = [
   ['charity', 'Благотворительность'],
   ['team', 'Team VR'],
   ['library', 'Корпоративная библиотека VR'],
-  ['ambassadors', 'Амбассадоры VR'],
   ['sportnews', 'Спорт VR'],
 ];
 const SECTION_TITLES = Object.fromEntries([...POST_SECTIONS, ['surveys', 'Опросы']]);
@@ -42,7 +41,6 @@ function pickPostFields(doc) {
 /** Встроенные посты раздела из SITE. */
 function builtinPosts(section) {
   if (section === 'hero') return SITE.slides;
-  if (section === 'ambassadors') return SITE.ambassadors;
   if (section === 'surveys') return SITE.surveys;
   const group = SITE.groups.find(item => item.id === section);
   return group ? group.items : [];
@@ -100,7 +98,7 @@ function postsInSection(section) {
 const visiblePosts = section => postsInSection(section).filter(post => !post.hidden);
 
 /* Где искать пост для страницы #a-<id> (по порядку) */
-const POST_PAGE_SECTIONS = ['sportnews', 'charity', 'team', 'library', 'ambassadors', 'surveys', 'hero'];
+const POST_PAGE_SECTIONS = ['sportnews', 'charity', 'team', 'library', 'surveys', 'hero'];
 
 /** Данные страницы поста #a-<id>: тексты, фото, файлы и куда ведёт «Назад». */
 function findPostPage(id) {

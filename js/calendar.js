@@ -141,15 +141,15 @@ function legendHTML(categories) {
 
 /**
  * Месяц, с которого открывается календарь внутренней страницы: текущий,
- * а для спорта и благотворительности — месяц ближайшего события.
+ * а для благотворительности — месяц ближайшего события.
  */
 function showCalendarMonth(page) {
   const now = new Date();
   shownMonth.year = now.getFullYear();
   shownMonth.month = now.getMonth();
-  if (page === 'sport' || page === 'charity-cal') {
+  if (page === 'charity-cal') {
     const today = toIsoDate(now);
-    const events = eventsForCalendar(page === 'sport' ? 'sport' : 'charity');
+    const events = eventsForCalendar('charity');
     const next = events.find(event => (event.end || event.date) >= today) || events[0];
     if (next) {
       const date = parseIsoDate(next.date < today ? today : next.date);
@@ -163,7 +163,7 @@ function showCalendarMonth(page) {
 /** После обновления событий в базе: перерисовать открытую страницу события или календари. */
 function refreshAfterEventsChange() {
   if ($('#admin-panel')) return;
-  if (/^#(e-|charity-cal|plan|sport|learning)/.test(location.hash)) route(false);
+  if (/^#(e-|charity-cal|plan|learning)/.test(location.hash)) route(false);
   else drawCalendars(); // в том числе календарь главной
 }
 

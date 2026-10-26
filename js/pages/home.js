@@ -29,14 +29,12 @@ function homePage() {
         <div id="home-events" style="min-height:0;height:100%"></div>
       </div>
     </section>` +
-    homeSectionHTML('charity') +
     homeSectionHTML('team') +
-    homeSectionHTML('ambassadors') +
+    homeSectionHTML('charity') +
     careSectionHTML() +
     homeSectionHTML('library') +
     homeSectionHTML('surveys') +
-    thanksSectionHTML() +
-    ideaSectionHTML()
+    thanksSectionHTML()
   );
 }
 
@@ -95,8 +93,7 @@ onClick('[data-slide]', dot => {
 /** Раздел с карточками; если их больше четырёх — карусель со стрелками справа от заголовка. */
 function homeSectionHTML(sectionId) {
   if (sectionId === 'surveys') return surveysSectionHTML();
-  const title =
-    sectionId === 'ambassadors' ? 'Амбассадоры VR' : SITE.groups.find(group => group.id === sectionId).title;
+  const title = SITE.groups.find(group => group.id === sectionId).title;
   const posts = visiblePosts(sectionId);
   const isCarousel = posts.length > 4;
   const arrows = `<div class="carousel-nav">
@@ -147,7 +144,7 @@ function surveysSectionHTML() {
 /** После изменения постов в базе: перерисовать разделы главной, цитату и админку. */
 function repaintPosts() {
   if ($('#hero-title')) {
-    ['charity', 'team', 'ambassadors', 'library', 'surveys'].forEach(sectionId => {
+    ['team', 'charity', 'library', 'surveys'].forEach(sectionId => {
       const section = document.getElementById(sectionId);
       if (section) section.outerHTML = homeSectionHTML(sectionId);
     });
@@ -157,7 +154,7 @@ function repaintPosts() {
   if ($('#admin-panel') && !adminState.draft && !isTypingInAdmin()) renderAdmin();
 }
 
-/* ----- Служба заботы, слова благодарности и «Предложить идею» ----- */
+/* ----- Служба заботы и слова благодарности ----- */
 
 function careSectionHTML() {
   const care = SITE.care;
@@ -200,32 +197,11 @@ function thanksSectionHTML() {
     </section>`;
 }
 
-function ideaSectionHTML() {
-  return `<section id="idea">
-      <div class="idea-box">
-        <h2>Предложить идею</h2>
-        <div class="idea-grid">
-          <form class="form" data-form="ideas">
-            <label for="idea-text" class="form-title">Ваша идея или комментарий</label>
-            <textarea id="idea-text" name="text" maxlength="600" rows="4" required placeholder="Что можно улучшить, добавить или изменить?"></textarea>
-            <input name="name" maxlength="40" placeholder="Подпись (необязательно)" autocomplete="off" aria-label="Подпись">
-            <button class="btn pill" type="submit">Отправить</button>
-            <span class="form-status" role="status"></span>
-          </form>
-          <ul class="idea-comments" id="ideas-list"></ul>
-        </div>
-      </div>
-    </section>`;
-}
-
-const formatNoteDate = timestamp =>
-  timestamp ? new Date(timestamp).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) : '';
-
 /**
- * Записки на стене благодарностей и комментарии к идеям.
- * Пока данные из базы не пришли, списки пустые; если база не подключилась — записки-примеры.
+ * Записки на стене благодарностей.
+ * Пока данные из базы не пришли, стена пустая; если база не подключилась — записки-примеры.
  */
-function drawThanksAndIdeas() {
+function drawThanks() {
   const thanksList = $('#thanks-list');
   const notes = dbFailed ? SAMPLE_THANKS : store.thanks;
   if (thanksList && notes) {
@@ -241,19 +217,6 @@ function drawThanksAndIdeas() {
           )
           .join('')
       : '<p class="empty">Пока записок нет — будьте первыми.</p>';
-  }
-
-  const ideasList = $('#ideas-list');
-  const ideas = dbFailed ? [] : store.ideas;
-  if (ideasList && ideas) {
-    ideasList.innerHTML = ideas.length
-      ? ideas
-          .map(idea => {
-            const date = idea.ts ? ' · ' + formatNoteDate(idea.ts) : '';
-            return `<li><p>${escapeHtml(idea.text)}</p><small>${escapeHtml(idea.name || 'Сотрудник')}${date}</small></li>`;
-          })
-          .join('')
-      : '';
   }
 }
 

@@ -129,26 +129,28 @@ function eventPage(eventId, previousPage) {
   const event = eventsById[eventId];
   let backRoute = event.back === 'home' ? 'events' : event.back;
   if (previousPage && BACK_LABELS[previousPage] && previousPage !== 'events') backRoute = previousPage;
-  const category = EVENT_CATEGORIES[event.cat];
   const start = parseIsoDate(event.date);
   const end = event.end && event.end !== event.date ? parseIsoDate(event.end) : null;
   const dates = end
     ? `${start.getDate()}–${end.getDate()} ${MONTH_NAMES_GENITIVE[end.getMonth()]} ${end.getFullYear()}`
     : `${start.getDate()} ${MONTH_NAMES_GENITIVE[start.getMonth()]} ${start.getFullYear()}`;
   const place = event.place ? `<div><small>Место</small><b>${escapeHtml(event.place)}</b></div>` : '';
-  const plannedNote = event.soft ? '<p class="event-note">Плановая дата: требует подтверждения.</p>' : '';
-  return (
-    backLinkHTML(backRoute, BACK_LABELS[backRoute]) +
-    `<span class="eyebrow">${event.sub ? escapeHtml(event.sub) : category.singular}</span>
-    <h1 class="page-title" style="font-size:clamp(2rem,5vw,3.6rem);margin:0.9rem 0 1.75rem">${escapeHtml(event.t)}</h1>
-    <div class="event-page">
-      <div class="placeholder" aria-hidden="true"></div>
-      <div>
-        <div class="event-meta">
+  const meta =
+    event.cat === 'prof'
+      ? ''
+      : `<div class="event-meta">
           <div><small>Дата</small><b>${dates}</b></div>
           <div><small>Время</small><b>${event.time || 'Уточняется'}</b></div>
           ${place}
-        </div>
+        </div>`;
+  const plannedNote = event.soft ? '<p class="event-note">Плановая дата: требует подтверждения.</p>' : '';
+  return (
+    backLinkHTML(backRoute, BACK_LABELS[backRoute]) +
+    `<h1 class="page-title" style="font-size:clamp(2rem,5vw,3.6rem);margin-bottom:1.75rem">${escapeHtml(event.t)}</h1>
+    <div class="event-page">
+      <div class="placeholder" aria-hidden="true"></div>
+      <div>
+        ${meta}
         <p class="event-text">${escapeHtml(event.d)}</p>
         ${plannedNote}
       </div>

@@ -10,10 +10,8 @@ const HOME_ANCHORS = [
   'team',
   'library',
   'surveys',
-  'ambassadors',
   'care',
   'thanks',
-  'idea',
 ];
 const PAGE_RENDERERS = {
   home: homePage,
@@ -54,7 +52,6 @@ const TAB_BAR_ITEMS = [
 ];
 
 let currentPage = null; // последняя открытая страница (не событие) — для ссылки «Назад» со страницы события
-let showExtraLinks = false; // «Предложить идею» в полезных ссылках — на всех страницах, кроме главной
 
 const currentAttr = isCurrent => (isCurrent ? 'aria-current="page"' : '');
 
@@ -78,10 +75,8 @@ function renderTabBar(current) {
 }
 
 /** Блок «Полезные ссылки» внизу страницы. Ссылки «@mail» и «@kb» берут адрес из админки. */
-function renderUsefulLinks(withExtraLinks) {
-  if (withExtraLinks !== undefined) showExtraLinks = withExtraLinks;
+function renderUsefulLinks() {
   const addresses = store.links || {};
-  const links = SITE.wall.links.concat(showExtraLinks ? SITE.wall.subLinks : []);
   const usefulLinkHTML = ([label, href]) => {
     if (href.startsWith('@')) {
       const url = (addresses[href.slice(1)] || '').trim();
@@ -94,7 +89,7 @@ function renderUsefulLinks(withExtraLinks) {
     return `<a href="${href}"${attrs}>${label}</a>`;
   };
   $('#useful-links').innerHTML =
-    `<h2>${SITE.wall.t}</h2><div class="links">${links.map(usefulLinkHTML).join('')}</div>`;
+    `<h2>${SITE.wall.t}</h2><div class="links">${SITE.wall.links.map(usefulLinkHTML).join('')}</div>`;
 }
 
 /** Какой пункт меню подсветить: для поста — главную, для события — страницу, откуда пришли. */
@@ -143,7 +138,7 @@ function route(scroll) {
   const navigationPage = navigationPageFor(page, previousPage, eventId);
   renderNav(navigationPage);
   renderTabBar(navigationPage);
-  renderUsefulLinks(page !== 'home');
+  renderUsefulLinks();
   document.title = pageTitle(page, postData, eventId);
 
   clearInterval(slideTimer);
@@ -153,8 +148,8 @@ function route(scroll) {
   }
   $('#useful-links').hidden = page === 'admin';
   if (page === 'home') startHomePage();
-  if (['plan', 'learning', 'charity-cal', 'sport'].includes(page)) showCalendarMonth(page);
-  drawThanksAndIdeas();
+  if (['plan', 'learning', 'charity-cal'].includes(page)) showCalendarMonth(page);
+  drawThanks();
 
   if (anchor) requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView());
   else if (scroll !== false) window.scrollTo(0, 0);

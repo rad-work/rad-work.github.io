@@ -43,7 +43,7 @@ async function initFirebase() {
   if (!db) {
     dbFailed = true;
     isAdmin = false;
-    drawThanksAndIdeas();
+    drawThanks();
     if ($('#admin-panel')) renderAdmin();
     return;
   }
@@ -144,20 +144,17 @@ function watchCollections() {
     },
   );
 
-  /* Благодарности и идеи: 60 последних */
-  ['thanks', 'ideas'].forEach(collection => {
-    subscribe(
-      () => db.collection(collection).orderBy('ts', 'desc').limit(60),
-      snapshot => {
-        store[collection] = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-        drawThanksAndIdeas();
-        if (collection === 'thanks' && $('#admin-panel') && !adminState.draft && !isTypingInAdmin())
-          renderAdmin();
-      },
-      () => {
-        store[collection] = store[collection] || [];
-        drawThanksAndIdeas();
-      },
-    );
-  });
+  /* Благодарности: 60 последних */
+  subscribe(
+    () => db.collection('thanks').orderBy('ts', 'desc').limit(60),
+    snapshot => {
+      store.thanks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+      drawThanks();
+      if ($('#admin-panel') && !adminState.draft && !isTypingInAdmin()) renderAdmin();
+    },
+    () => {
+      store.thanks = store.thanks || [];
+      drawThanks();
+    },
+  );
 }

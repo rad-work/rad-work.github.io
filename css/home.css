@@ -414,57 +414,10 @@
   }
 }
 
-/* ----- Предложить идею ----- */
-.idea-box {
-  background: var(--color-accent-tint);
-  padding: 2rem;
-  border-radius: var(--radius);
-}
-.idea-box h2 {
-  font-size: clamp(1.5rem, 2.6vw, 2.37rem);
-  margin-bottom: 1.25rem;
-}
-.idea-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 2.5rem;
-}
-.idea-comments {
-  list-style: none;
-  margin: 0;
-  padding: 0 0.5rem 0 0;
-  height: 18.75rem;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  border-top: 1px solid rgba(17, 164, 195, 0.3);
-}
-/* пока комментариев нет, правой колонки не видно */
-.idea-comments:empty {
-  display: none;
-}
-.idea-comments li {
-  padding: 0.875rem 0;
-  border-bottom: 1px solid rgba(17, 164, 195, 0.3);
-  font-size: 0.875rem;
-}
-.idea-comments p {
-  margin: 0 0 0.25rem;
-  overflow-wrap: anywhere;
-}
-.idea-comments small {
-  font-size: 0.6875rem;
-  color: var(--color-muted);
-}
-
 @media (max-width: 860px) {
   .hero,
-  .thanks,
-  .idea-grid {
+  .thanks {
     grid-template-columns: 1fr;
-  }
-  .idea-box {
-    padding: 1.5rem;
   }
 }
 @media (max-width: 760px) {

@@ -4,8 +4,8 @@ function postPage(post) {
   return (
     backLinkHTML(post.anchor ? post.anchor : post.back, 'Назад') +
     `<div class="post-page">
-      <h1 class="page-title" style="font-size:clamp(32px,5vw,max(60px,3rem))">${escapeHtml(post.t)}</h1>
       ${albumHTML([post.img, ...(post.imgs || [])], post.t)}
+      <h1 class="page-title" style="font-size:clamp(32px,5vw,max(60px,3rem))">${escapeHtml(post.t)}</h1>
       ${post.d && !post.body ? `<p>${escapeHtml(post.d)}</p>` : ''}
       ${postBodyHTML(post.body)}
       ${filesListHTML(post.files)}

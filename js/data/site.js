@@ -484,15 +484,6 @@ https://library.litres.ru/book/andrey-kurpatov/inoy-razum-kak-dumaet-iskusstvenn
       tag: 'Открыт',
     },
   ],
-  ambassadors: [
-    {
-      id: 'amb-do',
-      t: 'Что делают амбассадоры',
-      d: 'Участвуют в мероприятиях, благотворительности, представляют ГК на мероприятиях, предлагают идеи',
-      img: 'a1',
-    },
-    { id: 'amb-how', t: 'Как стать амбассадором', d: 'Условия участия', img: 'a2' },
-  ],
   sport: {
     lede: 'Спортивное направление ГК VR: командные активности, старты и тренировки для сотрудников всех компаний группы.',
     marathon: {
@@ -543,7 +534,6 @@ https://library.litres.ru/book/andrey-kurpatov/inoy-razum-kak-dumaet-iskusstvenn
       ['База знаний', '@kb'],
       ['Контакты HR', '#a-contacts'],
     ],
-    subLinks: [['Предложить идею', '#idea']],
   },
   soon: 'Подробный материал появится здесь.',
 };
