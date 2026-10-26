@@ -54,7 +54,7 @@ function planPage() {
     ${pageCalendarHTML('plan', `<div class="chips" role="group" aria-label="Фильтр событий">${filters}</div>`)}
     <div class="band band-sport">
       <div class="band-columns">
-        <div>
+        <div class="band-text">
           <h2>Спорт VR</h2>
           <p>Направление компании в спорте: спортивный клуб сотрудников, киберспорт, турниры между подразделениями и компаниями, марафоны и корпоративный фитнес.</p>
           <a class="more-link" href="#sport" data-route="sport">Открыть Спорт VR →</a>

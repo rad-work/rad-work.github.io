@@ -111,7 +111,6 @@
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   gap: 2rem;
-  align-items: center;
 }
 .band .placeholder {
   aspect-ratio: 16/9;
@@ -119,6 +118,25 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   background: rgba(17, 164, 195, 0.13);
+}
+/* пока картинка справа, колонки одной высоты: верх заглавных букв заголовка — вровень с верхом картинки,
+   низ кнопки — с низом картинки (если текст выше картинки, она тянется до его низа) */
+@media (min-width: 761px) {
+  .band .band-columns {
+    align-items: stretch;
+  }
+  .band .band-text {
+    display: flex;
+    flex-direction: column;
+  }
+  /* над заглавными в строке заголовка ~0.28 его размера — на столько он и поднят
+     (0.277 — точно в пиксель при 1920px) */
+  .band .band-text h2 {
+    margin-top: -0.277em;
+  }
+  .band .band-text .more-link {
+    margin-top: auto;
+  }
 }
 .mini-list {
   list-style: none;
