@@ -66,19 +66,20 @@
 .slide-dots button[aria-current='true'] {
   background: var(--color-accent);
 }
+/* заголовок — сверху, текст с автором — по центру высоты блока
+   (крайние строки 1fr одинаковые, поэтому центр не смещается из-за заголовка) */
 .quote {
   background: var(--color-green-tint);
   padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-rows: 1fr auto auto 1fr;
   gap: 0.6rem;
   min-width: 0;
   border-radius: var(--radius);
   overflow: hidden;
 }
 .quote .eyebrow {
-  margin-bottom: auto;
+  align-self: start;
 }
 .quote .quote-text {
   font-family: var(--font-serif);
