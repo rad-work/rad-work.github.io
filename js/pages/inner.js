@@ -21,12 +21,6 @@ const PLAN_FILTERS = [
   ['charity', 'Благотворительность'],
 ];
 
-/** До трёх ближайших благотворительных событий, которые ещё не закончились. */
-const upcomingCharityEvents = () =>
-  visibleEvents
-    .filter(event => event.cat === 'charity' && (event.end || event.date) >= TODAY_ISO)
-    .slice(0, 3);
-
 /** Блок «Календарь событий» внутренней страницы: легенда, два месяца и списки событий. */
 function pageCalendarHTML(scope, filtersHTML) {
   return `<div class="filter-bar">${filtersHTML}</div>
@@ -39,15 +33,6 @@ function planPage() {
     ([key, label]) =>
       `<button data-plan-filter="${key}" aria-pressed="${planFilter === key}">${label}</button>`,
   ).join('');
-  const charityEvents = upcomingCharityEvents();
-  const charityItems = charityEvents.length
-    ? charityEvents
-        .map(event => {
-          const date = parseIsoDate(event.date);
-          return `<li><b style="font-weight:400">${escapeHtml(event.t)}</b><span>${date.getDate()} ${MONTH_NAMES_GENITIVE[date.getMonth()]}</span></li>`;
-        })
-        .join('')
-    : '<li><b style="font-weight:400">Ближайшие даты сбора</b><span>появятся в календаре</span></li>';
   return (
     backLinkHTML('home') +
     `<h1 class="page-title with-rule">План внутренних коммуникаций</h1>
@@ -61,13 +46,8 @@ function planPage() {
         </div>
         <div class="placeholder" aria-hidden="true"></div>
       </div>
-    </div>
-    <div class="band band-charity">
-      <h2>Благотворительность</h2>
-      <p>Здесь можно узнать, когда принести вещи и на какие акции мы собираем помощь.</p>
-      <ul class="mini-list">${charityItems}</ul>
-      <a class="more-link" href="#charity-cal" data-route="charity-cal">Открыть календарь →</a>
-    </div>`
+    </div>` +
+    homeSectionHTML('charity')
   );
 }
 

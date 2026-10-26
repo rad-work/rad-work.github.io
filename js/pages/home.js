@@ -141,15 +141,13 @@ function surveysSectionHTML() {
     </section>`;
 }
 
-/** После изменения постов в базе: перерисовать разделы главной, цитату и админку. */
+/** После изменения постов в базе: перерисовать разделы с карточками (на главной и в плане), цитату и админку. */
 function repaintPosts() {
-  if ($('#hero-title')) {
-    ['team', 'charity', 'library', 'surveys'].forEach(sectionId => {
-      const section = document.getElementById(sectionId);
-      if (section) section.outerHTML = homeSectionHTML(sectionId);
-    });
-    drawHeroSlide();
-  }
+  ['team', 'charity', 'library', 'surveys'].forEach(sectionId => {
+    const section = document.getElementById(sectionId);
+    if (section) section.outerHTML = homeSectionHTML(sectionId);
+  });
+  if ($('#hero-title')) drawHeroSlide();
   if ($('#week-quote')) $('#week-quote').innerHTML = quoteHTML(currentQuote());
   if ($('#admin-panel') && !adminState.draft && !isTypingInAdmin()) renderAdmin();
 }
