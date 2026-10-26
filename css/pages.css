@@ -114,10 +114,6 @@
 }
 .band .placeholder {
   aspect-ratio: 16/9;
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  background: rgba(17, 164, 195, 0.13);
 }
 /* пока картинка справа, колонки одной высоты: верх заглавных букв заголовка — вровень с верхом картинки,
    низ кнопки — с низом картинки (если текст выше картинки, она тянется до его низа) */
@@ -161,17 +157,6 @@
 .sport-media {
   aspect-ratio: 21/8;
   width: 100%;
-  background: var(--color-gray-tint);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-muted);
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  text-align: center;
-  padding: 1rem;
-  border-radius: var(--radius);
 }
 .sport-title {
   font-size: clamp(3rem, 11vw, 7.5rem);

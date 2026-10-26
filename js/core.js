@@ -59,10 +59,10 @@ function imageUrl(ref) {
   return IMAGES[ref];
 }
 
-/** Фото с точкой фокуса (focusX и focusY — в процентах) или серая заглушка «Место под фото». */
+/** Фото с точкой фокуса (focusX и focusY — в процентах) или пустое место под фото. */
 function pictureHTML(ref, alt, focusX, focusY) {
   const url = imageUrl(ref);
-  if (!url) return '<div class="placeholder pic" role="img" aria-label="Место под фото"></div>';
+  if (!url) return '<div class="placeholder pic" aria-hidden="true"></div>';
   const focus = focusX != null ? ` style="object-position:${focusX}% ${focusY}%"` : '';
   return `<img class="pic" src="${url}" alt="${escapeHtml(alt || '')}"${focus}>`;
 }

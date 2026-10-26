@@ -165,14 +165,11 @@ section {
 }
 
 /* ----- Общие элементы ----- */
-.placeholder {
-  background: var(--color-gray-tint);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-muted);
+/* пустое место под будущую картинку */
+.placeholder,
+.placeholder.pic {
   aspect-ratio: 3/2;
-  border-radius: var(--radius);
+  background: none;
 }
 .pic {
   display: block;

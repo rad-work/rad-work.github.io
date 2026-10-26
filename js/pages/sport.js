@@ -57,7 +57,7 @@ function sportPage() {
 
   return (
     backLinkHTML('home') +
-    `<div class="sport-media" role="img" aria-label="Место под фото или видео">${sport.media}</div>
+    `<div class="sport-media" aria-hidden="true"></div>
     <h1 class="sport-title">Спорт VR</h1>
     <p class="lede">${sport.lede}</p>
     <section id="sport-calendar">

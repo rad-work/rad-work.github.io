@@ -310,9 +310,6 @@ a.event-row {
 }
 .event-page .placeholder {
   aspect-ratio: 4/3;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 .event-meta {
   display: grid;

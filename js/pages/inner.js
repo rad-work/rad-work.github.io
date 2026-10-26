@@ -59,7 +59,7 @@ function planPage() {
           <p>Направление компании в спорте: спортивный клуб сотрудников, киберспорт, турниры между подразделениями и компаниями, марафоны и корпоративный фитнес.</p>
           <a class="more-link" href="#sport" data-route="sport">Открыть Спорт VR →</a>
         </div>
-        <div class="placeholder" role="img" aria-label="Место под фото">Место под фото</div>
+        <div class="placeholder" aria-hidden="true"></div>
       </div>
     </div>
     <div class="band band-charity">
@@ -142,7 +142,7 @@ function eventPage(eventId, previousPage) {
     `<span class="eyebrow">${event.sub ? escapeHtml(event.sub) : category.singular}</span>
     <h1 class="page-title" style="font-size:clamp(2rem,5vw,3.6rem);margin:0.9rem 0 1.75rem">${escapeHtml(event.t)}</h1>
     <div class="event-page">
-      <div class="placeholder" role="img" aria-label="Место под картинку">Место под картинку</div>
+      <div class="placeholder" aria-hidden="true"></div>
       <div>
         <div class="event-meta">
           <div><small>Дата</small><b>${dates}</b></div>
