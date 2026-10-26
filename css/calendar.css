@@ -215,6 +215,7 @@ a.event-row {
   background: transparent;
   cursor: pointer;
   color: var(--color-text);
+  font-size: max(13.33px, 0.667rem); /* размер кнопки по умолчанию, на 4K растёт вместе со шрифтом */
   border-radius: var(--radius);
 }
 .months-card .month-pane b {
