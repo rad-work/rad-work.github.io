@@ -80,17 +80,5 @@ function learningPage() {
 }
 
 function careerPage() {
-  const tracks = SITE.career.tracks.map(
-    track => `<div class="track">
-          <h3>${track.t}</h3>
-          <ol>${track.steps.map(step => `<li>${step}</li>`).join('')}</ol>
-        </div>`,
-  );
-  const [linkLabel, linkRoute] = SITE.career.link;
-  return (
-    backLinkHTML('home') +
-    `<h1 class="page-title">Карьерные треки</h1>
-    <div class="tracks">${tracks.join('')}</div>
-    <p style="margin:28px 0 0"><a class="text-link" href="#${linkRoute}" data-route="${linkRoute}">${linkLabel} →</a></p>`
-  );
+  return backLinkHTML('home') + '<h1 class="page-title">Карьера в VR</h1>';
 }

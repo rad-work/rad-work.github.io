@@ -26,49 +26,6 @@
   margin: 0 0 1.75rem;
 }
 
-/* ----- Карьерные треки ----- */
-.tracks {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16.25rem, 1fr));
-  gap: 1.25rem;
-  margin-top: 0.5rem;
-}
-.track {
-  border: 1px solid var(--color-line);
-  background: var(--color-surface);
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-  min-width: 0;
-  border-radius: var(--radius);
-}
-.track h3 {
-  font-size: 1.3rem;
-}
-.track ol {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.track li {
-  padding: 0.4375rem 0 0.4375rem 1.125rem;
-  border-left: 1px solid var(--color-green);
-  position: relative;
-  font-size: 0.75rem;
-}
-/* точка-ступенька на линии трека */
-.track li::before {
-  content: '';
-  position: absolute;
-  left: -3px;
-  top: 0.9375rem;
-  width: 0.3125rem;
-  height: 0.3125rem;
-  background: var(--color-green);
-  border-radius: 50%;
-}
-
 /* ----- Обучение ----- */
 .learning-item {
   max-width: 73%;

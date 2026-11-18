@@ -24,7 +24,6 @@ const PAGE_RENDERERS = {
 };
 /* Заголовки вкладки браузера для страниц, которых нет в меню (SITE.pages) */
 const PAGE_TITLES = {
-  career: 'Карьерные треки',
   sport: 'Спорт VR',
   'charity-cal': 'Благотворительность',
   admin: 'Админ-панель',
