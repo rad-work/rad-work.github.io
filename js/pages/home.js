@@ -33,7 +33,7 @@ function homePage() {
     careSectionHTML() +
     homeSectionHTML('benefits') +
     homeSectionHTML('library') +
-    charitySectionHTML() +
+    homeSectionHTML('charity') +
     thanksSectionHTML()
   );
 }
@@ -145,7 +145,7 @@ function surveysSectionHTML() {
 function repaintPosts() {
   ['team', 'benefits', 'charity', 'library', 'surveys'].forEach(sectionId => {
     const section = document.getElementById(sectionId);
-    // на главной «Благотворительность» — не карточки, а список акций из календаря
+    // в плане «Благотворительность» — не карточки, а список акций из календаря
     if (section && !section.querySelector('.charity-band')) section.outerHTML = homeSectionHTML(sectionId);
   });
   if ($('#hero-title')) drawHeroSlide();
