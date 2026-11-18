@@ -5,6 +5,7 @@ const POST_SECTIONS = [
   ['hero', 'Главная тема'],
   ['charity', 'Благотворительность'],
   ['team', 'Team VR'],
+  ['benefits', 'Бенефиты VR'],
   ['library', 'Корпоративная библиотека VR'],
   ['sportnews', 'Спорт VR'],
 ];
@@ -99,7 +100,10 @@ function postsInSection(section) {
 const visiblePosts = section => postsInSection(section).filter(post => !post.hidden);
 
 /* Где искать пост для страницы #a-<id> (по порядку) */
-const POST_PAGE_SECTIONS = ['sportnews', 'charity', 'team', 'library', 'surveys', 'hero'];
+const POST_PAGE_SECTIONS = ['sportnews', 'charity', 'team', 'benefits', 'library', 'surveys', 'hero'];
+
+/* Куда ведёт «Назад» с поста раздела, карточек которого нет на главной */
+const POST_BACK_PAGES = { sportnews: 'sport', surveys: 'plan', charity: 'plan' };
 
 /** Данные страницы поста #a-<id>: тексты, фото, файлы и куда ведёт «Назад». */
 function findPostPage(id) {
@@ -114,8 +118,8 @@ function findPostPage(id) {
       img: post.img,
       imgs: post.imgs,
       files: post.files,
-      back: section === 'sportnews' ? 'sport' : 'home',
-      anchor: section === 'hero' || section === 'sportnews' ? undefined : section,
+      back: POST_BACK_PAGES[section] || 'home',
+      anchor: POST_BACK_PAGES[section] || section === 'hero' ? undefined : section,
     };
   }
   return null;

@@ -37,7 +37,8 @@ function planPage() {
         <div class="placeholder" aria-hidden="true"></div>
       </div>
     </div>` +
-    homeSectionHTML('charity')
+    homeSectionHTML('charity') +
+    homeSectionHTML('surveys')
   );
 }
 

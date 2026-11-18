@@ -155,7 +155,10 @@ function showCalendarMonth(page) {
 function refreshAfterEventsChange() {
   if ($('#admin-panel')) return;
   if (/^#(charity-cal|plan|learning)/.test(location.hash)) route(false);
-  else drawCalendars(); // в том числе календарь главной
+  else {
+    drawCalendars(); // в том числе календарь главной
+    if ($('#charity-events')) $('#charity-events').innerHTML = charityEventsHTML();
+  }
 }
 
 /* ----- Действия в календарях ----- */

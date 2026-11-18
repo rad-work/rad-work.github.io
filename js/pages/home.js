@@ -30,10 +30,10 @@ function homePage() {
       </div>
     </section>` +
     homeSectionHTML('team') +
-    homeSectionHTML('charity') +
     careSectionHTML() +
+    homeSectionHTML('benefits') +
     homeSectionHTML('library') +
-    homeSectionHTML('surveys') +
+    charitySectionHTML() +
     thanksSectionHTML()
   );
 }
@@ -143,13 +143,42 @@ function surveysSectionHTML() {
 
 /** После изменения постов в базе: перерисовать разделы с карточками (на главной и в плане), цитату и админку. */
 function repaintPosts() {
-  ['team', 'charity', 'library', 'surveys'].forEach(sectionId => {
+  ['team', 'benefits', 'charity', 'library', 'surveys'].forEach(sectionId => {
     const section = document.getElementById(sectionId);
-    if (section) section.outerHTML = homeSectionHTML(sectionId);
+    // на главной «Благотворительность» — не карточки, а список акций из календаря
+    if (section && !section.querySelector('.charity-band')) section.outerHTML = homeSectionHTML(sectionId);
   });
   if ($('#hero-title')) drawHeroSlide();
   if ($('#week-quote')) $('#week-quote').innerHTML = quoteHTML(currentQuote());
   if ($('#admin-panel') && !adminState.draft && !isTypingInAdmin()) renderAdmin();
+}
+
+/* ----- Благотворительность: ближайшие акции из календаря ----- */
+
+/** До трёх ближайших благотворительных акций, которые ещё не закончились. */
+const upcomingCharityEvents = () =>
+  visibleEvents
+    .filter(event => event.cat === 'charity' && (event.end || event.date) >= TODAY_ISO)
+    .slice(0, 3);
+
+function charityEventsHTML() {
+  const events = upcomingCharityEvents();
+  if (!events.length) return '<li>Ближайшие акции<span>появятся в календаре</span></li>';
+  return events
+    .map(event => {
+      const date = parseIsoDate(event.date);
+      return `<li>${escapeHtml(event.t)}<span>${date.getDate()} ${MONTH_NAMES_GENITIVE[date.getMonth()]}</span></li>`;
+    })
+    .join('');
+}
+
+function charitySectionHTML() {
+  return `<section id="charity">
+      <div class="charity-band">
+        <h2>Благотворительность</h2>
+        <ul class="charity-events" id="charity-events">${charityEventsHTML()}</ul>
+      </div>
+    </section>`;
 }
 
 /* ----- Служба заботы и слова благодарности ----- */

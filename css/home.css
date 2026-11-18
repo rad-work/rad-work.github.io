@@ -314,6 +314,39 @@
   }
 }
 
+/* ----- Благотворительность: ближайшие акции ----- */
+/* отступы как в макете: слева шире, чем справа */
+.charity-band {
+  background: #e9f6f0;
+  padding: 1.8rem 1.45rem 2.3rem 2.4rem;
+  border-radius: var(--radius);
+}
+.charity-band h2 {
+  font-size: clamp(1.6rem, 3vw, 2.05rem);
+  margin-bottom: 2.55rem;
+}
+.charity-events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgba(27, 23, 25, 0.07);
+}
+.charity-events li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(27, 23, 25, 0.07);
+  font-size: 0.67rem;
+  font-weight: 400;
+}
+.charity-events span {
+  flex: none;
+  color: var(--color-muted);
+  font-weight: 300;
+  text-align: right;
+}
+
 /* ----- Слова благодарности: записки на стене ----- */
 .thanks {
   --title-size: clamp(1.75rem, 3vw, 2.5rem);
@@ -424,8 +457,15 @@
   .care .care-grid {
     grid-template-columns: 1fr;
   }
-  .care {
+  .care,
+  .charity-band {
     padding: 1.4rem;
+  }
+  .charity-band h2 {
+    margin-bottom: 1.4rem;
+  }
+  .charity-events li {
+    font-size: 0.8rem;
   }
 }
 @media (max-width: 480px) {

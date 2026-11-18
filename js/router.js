@@ -8,8 +8,8 @@ const HOME_ANCHORS = [
   'events',
   'charity',
   'team',
+  'benefits',
   'library',
-  'surveys',
   'care',
   'thanks',
 ];
